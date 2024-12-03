@@ -549,11 +549,12 @@ import { getDoc, doc } from "firebase/firestore";
 import { onAuthStateChanged } from "firebase/auth";
 import ChatList from "./UserList";
 import MessageArea from "./MessageArea";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Spinner from "react-bootstrap/Spinner";
 
 const ChatPage = () => {
+  const { userId } = useParams(); // Use URL parameter for userId
   const [selectedUser, setSelectedUser] = useState(
     JSON.parse(localStorage.getItem("selectedUser")) || null
   );
@@ -583,6 +584,9 @@ const ChatPage = () => {
         setCurrentUser(user);
         localStorage.setItem("currentUser", JSON.stringify(user)); // Save user to localStorage
         checkUserProfile(user);
+        if (!userId || userId !== user.uid) {
+          navigate(`/chat/${user.uid}`); // Redirect to correct userId if the URL doesn't match
+        }
       } else {
         setCurrentUser(null);
         localStorage.removeItem("currentUser"); // Remove user from localStorage
@@ -591,7 +595,7 @@ const ChatPage = () => {
     });
 
     return () => unsubscribeAuth(); // Clean up the auth listener on unmount
-  }, [navigate]);
+  }, [navigate, userId]);
 
   // Persist selectedUser to localStorage whenever it changes
   useEffect(() => {
