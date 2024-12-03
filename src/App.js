@@ -7,7 +7,7 @@ import ChatPage from "./components/ChatPage";
 
 function App() {
   return (
-    <Router basename="/r-chat-app">
+    <Router basename="/Chat-App">
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/signup" element={<SignUp />} />
