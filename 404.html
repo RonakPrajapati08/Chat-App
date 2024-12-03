@@ -18,9 +18,14 @@
 
     <title>React App</title>
     <script type="text/javascript">
+      // Check if the URL contains '/chat/', meaning we are on the chat page
       var path = window.location.pathname;
       if (path.indexOf("/chat/") !== -1) {
-        window.location.replace("/Chat-App/");
+        // Allow the single page app to handle routing (hash-based)
+        window.location.replace(window.location.href.split('/Chat-App/')[0] + '/Chat-App/#' + path);
+      } else {
+        // Default redirect for other 404 pages
+        window.location.replace('/Chat-App/');
       }
     </script>
   </head>
