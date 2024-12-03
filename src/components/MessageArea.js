@@ -724,7 +724,7 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
                     borderRadius: "5px",
                   }}
                 >
-                  <i class="fa-solid fa-circle-arrow-left fs-5 me-1"></i>
+                  <i className="fa-solid fa-circle-arrow-left fs-5 me-1"></i>
                 </button>
               </div>
               <div>
