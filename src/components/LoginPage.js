@@ -441,7 +441,7 @@ const LoginPage = () => {
             </button>
           </form>
           <p className="text-center mt-3">
-            Don't have an account? <a href="/signup">Sign up here</a>
+            Don't have an account? <a href="/Chat-App/signup">Sign up here</a>
           </p>
         </div>
       </div>
