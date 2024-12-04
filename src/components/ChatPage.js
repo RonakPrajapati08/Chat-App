@@ -445,103 +445,103 @@
 // export default ChatPage;
 
 //This code is Refresh page so refreshing after stay in user messageArea dahsboard
-// import React, { useState, useEffect } from "react";
-// import { auth, db } from "../firebaseConfig";
-// import { getDoc, doc } from "firebase/firestore";
-// import { onAuthStateChanged } from "firebase/auth";
-// import ChatList from "./UserList";
-// import MessageArea from "./MessageArea";
-// import { useNavigate } from "react-router-dom";
-// import "bootstrap/dist/css/bootstrap.min.css";
-// import Spinner from "react-bootstrap/Spinner";
+import React, { useState, useEffect } from "react";
+import { auth, db } from "../firebaseConfig";
+import { getDoc, doc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
+import ChatList from "./UserList";
+import MessageArea from "./MessageArea";
+import { useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
+import Spinner from "react-bootstrap/Spinner";
 
-// const ChatPage = () => {
-//   const [selectedUser, setSelectedUser] = useState(
-//     JSON.parse(localStorage.getItem("selectedUser")) || null
-//   );
-//   const [currentUser, setCurrentUser] = useState(null);
-//   const navigate = useNavigate();
+const ChatPage = () => {
+  const [selectedUser, setSelectedUser] = useState(
+    JSON.parse(localStorage.getItem("selectedUser")) || null
+  );
+  const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
 
-//   useEffect(() => {
-//     const checkUserProfile = async (user) => {
-//       const userDocRef = doc(db, "users", user.uid);
-//       const docSnap = await getDoc(userDocRef);
+  useEffect(() => {
+    const checkUserProfile = async (user) => {
+      const userDocRef = doc(db, "users", user.uid);
+      const docSnap = await getDoc(userDocRef);
 
-//       if (docSnap.exists()) {
-//         const userData = docSnap.data();
-//         if (!userData.name || !userData.email) {
-//           navigate("/profile-completion");
-//         }
-//       } else {
-//         navigate("/profile-completion");
-//       }
-//     };
+      if (docSnap.exists()) {
+        const userData = docSnap.data();
+        if (!userData.name || !userData.email) {
+          navigate("/profile-completion");
+        }
+      } else {
+        navigate("/profile-completion");
+      }
+    };
 
-//     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-//       if (user) {
-//         setCurrentUser(user);
-//         checkUserProfile(user);
-//       } else {
-//         setCurrentUser(null);
-//         navigate("/login");
-//       }
-//     });
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setCurrentUser(user);
+        checkUserProfile(user);
+      } else {
+        setCurrentUser(null);
+        navigate("/login");
+      }
+    });
 
-//     return () => unsubscribeAuth();
-//   }, [navigate]);
+    return () => unsubscribeAuth();
+  }, [navigate]);
 
-//   // Persist selectedUser to localStorage whenever it changes
-//   useEffect(() => {
-//     if (selectedUser) {
-//       localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
-//     } else {
-//       localStorage.removeItem("selectedUser");
-//     }
-//   }, [selectedUser]);
+  // Persist selectedUser to localStorage whenever it changes
+  useEffect(() => {
+    if (selectedUser) {
+      localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
+    } else {
+      localStorage.removeItem("selectedUser");
+    }
+  }, [selectedUser]);
 
-//   return (
-//     <div className="chat-page d-flex flex-column">
-//       {currentUser ? (
-//         <>
-//           {/* Chat List */}
-//           <div
-//             className="chat-list-container"
-//             style={{
-//               display: selectedUser ? "none" : "block", // Hide ChatList when MessageArea is shown
-//               width: "100%",
-//             }}
-//           >
-//             <ChatList setSelectedUser={setSelectedUser} />
-//           </div>
+  return (
+    <div className="chat-page d-flex flex-column">
+      {currentUser ? (
+        <>
+          {/* Chat List */}
+          <div
+            className="chat-list-container"
+            style={{
+              display: selectedUser ? "none" : "block", // Hide ChatList when MessageArea is shown
+              width: "100%",
+            }}
+          >
+            <ChatList setSelectedUser={setSelectedUser} />
+          </div>
 
-//           {/* Message Area */}
-//           <div
-//             className="message-area-container"
-//             style={{
-//               display: selectedUser ? "block" : "none", // Show MessageArea only when a user is selected
-//               width: "100%",
-//             }}
-//           >
-//             {selectedUser ? (
-//               <MessageArea
-//                 selectedUser={selectedUser}
-//                 setSelectedUser={setSelectedUser}
-//               />
-//             ) : null}
-//           </div>
-//         </>
-//       ) : (
-//         <div className="loading-spinner text-center">
-//           <Spinner animation="border" role="status">
-//             <span className="visually-hidden">Loading...</span>
-//           </Spinner>
-//         </div>
-//       )}
-//     </div>
-//   );
-// };
+          {/* Message Area */}
+          <div
+            className="message-area-container"
+            style={{
+              display: selectedUser ? "block" : "none", // Show MessageArea only when a user is selected
+              width: "100%",
+            }}
+          >
+            {selectedUser ? (
+              <MessageArea
+                selectedUser={selectedUser}
+                setSelectedUser={setSelectedUser}
+              />
+            ) : null}
+          </div>
+        </>
+      ) : (
+        <div className="loading-spinner text-center">
+          <Spinner animation="border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        </div>
+      )}
+    </div>
+  );
+};
 
-// export default ChatPage;
+export default ChatPage;
 
 // import React, { useState, useEffect } from "react";
 // import { auth, db } from "../firebaseConfig";
@@ -650,117 +650,117 @@
 
 // export default ChatPage;
 
-import React, { useState, useEffect } from "react";
-import { auth, db } from "../firebaseConfig";
-import { getDoc, doc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
-import ChatList from "./UserList";
-import MessageArea from "./MessageArea";
-import { useNavigate, useParams } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Spinner from "react-bootstrap/Spinner";
+// import React, { useState, useEffect } from "react";
+// import { auth, db } from "../firebaseConfig";
+// import { getDoc, doc } from "firebase/firestore";
+// import { onAuthStateChanged } from "firebase/auth";
+// import ChatList from "./UserList";
+// import MessageArea from "./MessageArea";
+// import { useNavigate, useParams } from "react-router-dom";
+// import "bootstrap/dist/css/bootstrap.min.css";
+// import Spinner from "react-bootstrap/Spinner";
 
-const ChatPage = () => {
-  const { userId } = useParams(); // Get userId from the URL
-  const [selectedUser, setSelectedUser] = useState(
-    JSON.parse(localStorage.getItem("selectedUser")) || null
-  );
-  const [currentUser, setCurrentUser] = useState(
-    JSON.parse(localStorage.getItem("currentUser")) || null
-  );
-  const navigate = useNavigate();
+// const ChatPage = () => {
+//   const { userId } = useParams(); // Get userId from the URL
+//   const [selectedUser, setSelectedUser] = useState(
+//     JSON.parse(localStorage.getItem("selectedUser")) || null
+//   );
+//   const [currentUser, setCurrentUser] = useState(
+//     JSON.parse(localStorage.getItem("currentUser")) || null
+//   );
+//   const navigate = useNavigate();
 
-  useEffect(() => {
-    const checkUserProfile = async (user) => {
-      try {
-        const userDocRef = doc(db, "users", user.uid);
-        const docSnap = await getDoc(userDocRef);
+//   useEffect(() => {
+//     const checkUserProfile = async (user) => {
+//       try {
+//         const userDocRef = doc(db, "users", user.uid);
+//         const docSnap = await getDoc(userDocRef);
 
-        if (docSnap.exists()) {
-          const userData = docSnap.data();
-          if (!userData.name || !userData.email) {
-            navigate("/profile-completion");
-          }
-        } else {
-          navigate("/profile-completion");
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    };
+//         if (docSnap.exists()) {
+//           const userData = docSnap.data();
+//           if (!userData.name || !userData.email) {
+//             navigate("/profile-completion");
+//           }
+//         } else {
+//           navigate("/profile-completion");
+//         }
+//       } catch (error) {
+//         console.error("Error fetching user profile:", error);
+//       }
+//     };
 
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setCurrentUser({ uid: user.uid });
-        localStorage.setItem("currentUser", JSON.stringify({ uid: user.uid }));
+//     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+//       if (user) {
+//         setCurrentUser({ uid: user.uid });
+//         localStorage.setItem("currentUser", JSON.stringify({ uid: user.uid }));
 
-        checkUserProfile(user);
+//         checkUserProfile(user);
 
-        // If the URL doesn't match the current user's ID, update it
-        if (!userId || userId !== user.uid) {
-          navigate(`/chat/${user.uid}`);
-        }
-      } else {
-        setCurrentUser(null);
-        localStorage.removeItem("currentUser");
-        navigate("/login");
-      }
-    });
+//         // If the URL doesn't match the current user's ID, update it
+//         if (!userId || userId !== user.uid) {
+//           navigate(`/chat/${user.uid}`);
+//         }
+//       } else {
+//         setCurrentUser(null);
+//         localStorage.removeItem("currentUser");
+//         navigate("/login");
+//       }
+//     });
 
-    return () => unsubscribeAuth();
-  }, [navigate, userId]);
+//     return () => unsubscribeAuth();
+//   }, [navigate, userId]);
 
-  // Persist selectedUser to localStorage whenever it changes
-  useEffect(() => {
-    if (selectedUser) {
-      localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
-    } else {
-      localStorage.removeItem("selectedUser");
-    }
-  }, [selectedUser]);
+//   // Persist selectedUser to localStorage whenever it changes
+//   useEffect(() => {
+//     if (selectedUser) {
+//       localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
+//     } else {
+//       localStorage.removeItem("selectedUser");
+//     }
+//   }, [selectedUser]);
 
-  return (
-    <div className="chat-page d-flex flex-column">
-      {currentUser ? (
-        <>
-          <div
-            className="chat-list-container"
-            style={{
-              display: selectedUser ? "none" : "block",
-              width: "100%",
-            }}
-          >
-            <ChatList setSelectedUser={setSelectedUser} />
-          </div>
+//   return (
+//     <div className="chat-page d-flex flex-column">
+//       {currentUser ? (
+//         <>
+//           <div
+//             className="chat-list-container"
+//             style={{
+//               display: selectedUser ? "none" : "block",
+//               width: "100%",
+//             }}
+//           >
+//             <ChatList setSelectedUser={setSelectedUser} />
+//           </div>
 
-          <div
-            className="message-area-container"
-            style={{
-              display: selectedUser ? "block" : "none",
-              width: "100%",
-            }}
-          >
-            {selectedUser ? (
-              <MessageArea
-                selectedUser={selectedUser}
-                setSelectedUser={setSelectedUser}
-              />
-            ) : (
-              <p className="text-center">
-                Please select a user to start chatting!
-              </p>
-            )}
-          </div>
-        </>
-      ) : (
-        <div className="loading-spinner text-center">
-          <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </Spinner>
-        </div>
-      )}
-    </div>
-  );
-};
+//           <div
+//             className="message-area-container"
+//             style={{
+//               display: selectedUser ? "block" : "none",
+//               width: "100%",
+//             }}
+//           >
+//             {selectedUser ? (
+//               <MessageArea
+//                 selectedUser={selectedUser}
+//                 setSelectedUser={setSelectedUser}
+//               />
+//             ) : (
+//               <p className="text-center">
+//                 Please select a user to start chatting!
+//               </p>
+//             )}
+//           </div>
+//         </>
+//       ) : (
+//         <div className="loading-spinner text-center">
+//           <Spinner animation="border" role="status">
+//             <span className="visually-hidden">Loading...</span>
+//           </Spinner>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
 
-export default ChatPage;
+// export default ChatPage;
