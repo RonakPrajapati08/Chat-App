@@ -119,7 +119,7 @@ const SignUp = () => {
         </form>
         <p className="text-center mt-3">
           Already have an account?{" "}
-          <a href="/r-chat-app/" className="text-decoration-none">
+          <a href="/Chat-App/" className="text-decoration-none">
             Login here
           </a>
         </p>
