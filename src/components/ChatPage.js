@@ -555,18 +555,15 @@ import Spinner from "react-bootstrap/Spinner";
 
 const ChatPage = () => {
   const { userId } = useParams(); // Use URL parameter for userId
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null); // Null initially to prevent rendering before user is authenticated
-  const [loading, setLoading] = useState(true); // Loading state
+  const [selectedUser, setSelectedUser] = useState(
+    JSON.parse(localStorage.getItem("selectedUser")) || null
+  );
+  const [currentUser, setCurrentUser] = useState(
+    JSON.parse(localStorage.getItem("currentUser")) || null // Retrieve currentUser from localStorage
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Retrieve data from localStorage and set initial states
-    const storedSelectedUser = JSON.parse(localStorage.getItem("selectedUser"));
-    const storedCurrentUser = JSON.parse(localStorage.getItem("currentUser"));
-    setSelectedUser(storedSelectedUser || null);
-    setCurrentUser(storedCurrentUser || null);
-
     // Function to check user profile
     const checkUserProfile = async (user) => {
       const userDocRef = doc(db, "users", user.uid);
@@ -588,38 +585,26 @@ const ChatPage = () => {
         localStorage.setItem("currentUser", JSON.stringify(user)); // Save user to localStorage
         checkUserProfile(user);
         if (!userId || userId !== user.uid) {
-          navigate("/chat"); // Redirect to correct userId if the URL doesn't match
+          navigate(`/chat/${user.uid}`); // Redirect to correct userId if the URL doesn't match
         }
-        setLoading(false); // Set loading to false once user is authenticated
       } else {
         setCurrentUser(null);
         localStorage.removeItem("currentUser"); // Remove user from localStorage
         navigate("/login");
-        setLoading(false); // Set loading to false if no user is authenticated
       }
     });
 
     return () => unsubscribeAuth(); // Clean up the auth listener on unmount
   }, [navigate, userId]);
 
+  // Persist selectedUser to localStorage whenever it changes
   useEffect(() => {
-    // Persist selectedUser to localStorage whenever it changes
     if (selectedUser) {
       localStorage.setItem("selectedUser", JSON.stringify(selectedUser)); // Save selectedUser to localStorage
     } else {
       localStorage.removeItem("selectedUser"); // Remove selectedUser from localStorage
     }
   }, [selectedUser]);
-
-  if (loading) {
-    return (
-      <div className="loading-spinner text-center">
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-      </div>
-    );
-  }
 
   return (
     <div className="chat-page d-flex flex-column">

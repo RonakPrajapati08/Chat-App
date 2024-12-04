@@ -332,7 +332,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (auth.currentUser) {
-      navigate("/chat"); // Navigate to chat page with user ID in URL
+      navigate(`/chat/${auth.currentUser.uid}`); // Navigate to chat page with user ID in URL
     }
   }, [navigate]);
 
@@ -355,7 +355,7 @@ const LoginPage = () => {
         const userData = userDoc.data();
         if (userData.name && userData.email === email) {
           // Redirect to /chat with user ID
-          navigate("/chat");
+          navigate(`/chat/${user.uid}`);
         } else {
           await auth.signOut();
           setError("Your profile information is incomplete or incorrect.");
@@ -366,7 +366,7 @@ const LoginPage = () => {
           email: email,
           isOnline: true,
         });
-        navigate("/chat"); // Redirect after profile is created
+        navigate(`/chat/${user.uid}`); // Redirect after profile is created
       }
     } catch (error) {
       setError("Invalid login credentials.");
