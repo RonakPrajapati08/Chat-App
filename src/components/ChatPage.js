@@ -661,7 +661,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Spinner from "react-bootstrap/Spinner";
 
 const ChatPage = () => {
-  const { userId } = useParams();
+  const { userId } = useParams(); // Get userId from the URL
   const [selectedUser, setSelectedUser] = useState(
     JSON.parse(localStorage.getItem("selectedUser")) || null
   );
@@ -671,7 +671,6 @@ const ChatPage = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Function to check user profile
     const checkUserProfile = async (user) => {
       try {
         const userDocRef = doc(db, "users", user.uid);
@@ -692,11 +691,12 @@ const ChatPage = () => {
 
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setCurrentUser({ uid: user.uid }); // Save only non-sensitive data
+        setCurrentUser({ uid: user.uid });
         localStorage.setItem("currentUser", JSON.stringify({ uid: user.uid }));
 
         checkUserProfile(user);
 
+        // If the URL doesn't match the current user's ID, update it
         if (!userId || userId !== user.uid) {
           navigate(`/chat/${user.uid}`);
         }
@@ -707,10 +707,7 @@ const ChatPage = () => {
       }
     });
 
-    return () => {
-      unsubscribeAuth();
-      setSelectedUser(null); // Clean-up state
-    };
+    return () => unsubscribeAuth();
   }, [navigate, userId]);
 
   // Persist selectedUser to localStorage whenever it changes
