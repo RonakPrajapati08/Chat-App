@@ -802,6 +802,7 @@ import {
   onSnapshot,
   serverTimestamp,
   deleteDoc,
+  updateDoc,
   where,
   getDocs,
   setDoc,
@@ -809,8 +810,9 @@ import {
   arrayUnion,
   getDoc,
 } from "firebase/firestore";
-import { Dropdown } from "react-bootstrap";
+import { Dropdown, Image } from "react-bootstrap";
 import "../App.css";
+import sendIcon from "./images/send.png";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const MessageArea = ({ selectedUser, setSelectedUser }) => {
@@ -818,6 +820,7 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [otherUserTyping, setOtherUserTyping] = useState(false);
+  const [editingMessageId, setEditingMessageId] = useState(null);
   const messagesEndRef = useRef(null);
 
   const goBack = () => {
@@ -952,11 +955,11 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
     }
   };
 
-  const handleKeyPress = (e) => {
-    if (e.key === "Enter" && message.trim()) {
-      sendMessage();
-    }
-  };
+  // const handleKeyPress = (e) => {
+  //   if (e.key === "Enter" && message.trim()) {
+  //     sendMessage();
+  //   }
+  // };
 
   const handleInputChange = (e) => {
     setMessage(e.target.value);
@@ -1000,6 +1003,35 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
     } catch (error) {
       console.error("Error clearing chat:", error);
     }
+  };
+
+  const startEditing = (msgId, currentText) => {
+    setEditingMessageId(msgId);
+    setMessage(currentText); // Populate input box with the message text
+  };
+
+  const saveEditedMessage = async () => {
+    if (editingMessageId && message.trim()) {
+      const messageRef = doc(db, "chats", editingMessageId);
+      await updateDoc(messageRef, {
+        text: message,
+        edited: true,
+      });
+
+      setEditingMessageId(null);
+      setMessage("");
+
+      // Turn off typing effect after saving the edit
+      updateTypingStatus(false);
+    }
+  };
+
+  const cancelEditing = () => {
+    setEditingMessageId(null);
+    setMessage(""); // Clear the input box
+
+    // Turn off typing effect when canceling
+    updateTypingStatus(false);
   };
 
   const deleteMessage = async (messageId) => {
@@ -1058,12 +1090,12 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
       </div>
 
       {/* // <button
-                //   style={{ fontSize: "10px" }}
-                //   className=""
-                //   onClick={() => deleteMessage(msg.id)}
-                // >
-                //   Delete
-                // </button> */}
+          //   style={{ fontSize: "10px" }}
+          //   className=""
+          //   onClick={() => deleteMessage(msg.id)}
+          // >
+          //   Delete
+          // </button> */}
 
       <div className="messages">
         {messages.map((msg, index) => (
@@ -1073,8 +1105,20 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
               msg.senderId === auth.currentUser?.uid ? "sent" : "received"
             }`}
           >
-            <div className="d-flex align-items-center">
-              <p className="mb-0">{msg.text}</p>
+            <div className="d-flex align-items-baseline">
+              <div className="d-flex align-items-center">
+                <p className="msg-marg">{msg.text}</p>
+                <p className="mb-0">
+                  {msg.edited && (
+                    <span
+                      className="text-black-50 ms-1"
+                      style={{ fontSize: "10px" }}
+                    >
+                      Edited
+                    </span>
+                  )}
+                </p>
+              </div>
               {msg.senderId === auth.currentUser?.uid && (
                 <Dropdown align="">
                   <Dropdown.Toggle
@@ -1088,7 +1132,14 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
 
                   <Dropdown.Menu>
                     <Dropdown.Item
-                      className="p-0"
+                      onClick={() => startEditing(msg.id, msg.text)}
+                      className="edit-btn px-0"
+                      style={{ fontSize: "13px" }}
+                    >
+                      Edit
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      className="px-0"
                       style={{ fontSize: "13px" }}
                       onClick={() => deleteMessage(msg.id)}
                     >
@@ -1114,21 +1165,618 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
         </div>
       )}
 
+      {/* Input Area */}
       <div className="input-area">
         <input
           type="text"
           placeholder="Type a message"
           value={message}
           onChange={handleInputChange}
-          onKeyDown={handleKeyPress}
+          onKeyDown={(e) =>
+            e.key === "Enter" &&
+            (editingMessageId ? saveEditedMessage() : sendMessage())
+          }
         />
-        <button onClick={sendMessage}>Send</button>
+        {editingMessageId ? (
+          <div className="d-flex gap-2">
+            <button
+              className=""
+              style={{ padding: "10px 12px 7px" }}
+              onClick={saveEditedMessage}
+            >
+              <i class="fa-solid fa-check fs-5"></i>
+            </button>
+            <button
+              className="bg-danger"
+              style={{ padding: "10px 12px 7px" }}
+              onClick={cancelEditing}
+            >
+              <i class="fa-solid fa-xmark fs-5 "></i>
+            </button>
+          </div>
+        ) : (
+          <button onClick={sendMessage}>
+            <Image src={sendIcon} style={{ width: "20px" }} />
+          </button>
+        )}
       </div>
     </div>
   );
 };
 
 export default MessageArea;
+
+//Edits and Delete option add And New UI Calling Add ("07/12/2024")
+
+// import React, { useState, useEffect, useRef } from "react";
+// import { db, auth, requestNotificationPermission } from "../firebaseConfig";
+// import {
+//   collection,
+//   addDoc,
+//   query,
+//   orderBy,
+//   onSnapshot,
+//   serverTimestamp,
+//   deleteDoc,
+//   updateDoc,
+//   where,
+//   getDocs,
+//   setDoc,
+//   doc,
+//   arrayUnion,
+//   getDoc,
+// } from "firebase/firestore";
+// import SimplePeer from "simple-peer";
+// import { Dropdown, Image } from "react-bootstrap";
+// import "../App.css";
+// import sendIcon from "./images/send.png";
+// import "bootstrap/dist/css/bootstrap.min.css";
+
+// const MessageArea = ({ selectedUser, setSelectedUser }) => {
+//   const [messages, setMessages] = useState([]);
+//   const [message, setMessage] = useState("");
+//   const [isTyping, setIsTyping] = useState(false);
+//   const [otherUserTyping, setOtherUserTyping] = useState(false);
+//   const [editingMessageId, setEditingMessageId] = useState(null);
+//   //calling
+//   const [isCalling, setIsCalling] = useState(false);
+//   const [localStream, setLocalStream] = useState(null);
+//   const [remoteStream, setRemoteStream] = useState(null);
+//   const [peerConnection, setPeerConnection] = useState(null);
+//   const messagesEndRef = useRef(null);
+
+//   const goBack = () => {
+//     setSelectedUser(null); // Reset the selected user to return to ChatList
+//   };
+
+//   useEffect(() => {
+//     // Request notification permission when component mounts
+//     if (auth.currentUser) {
+//       requestNotificationPermission(); // Request notification permission
+//     }
+
+//     const handleBeforeUnload = (event) => {
+//       event.preventDefault();
+//       event.returnValue = ""; // Prevent page refresh
+//     };
+
+//     window.addEventListener("beforeunload", handleBeforeUnload);
+
+//     return () => {
+//       window.removeEventListener("beforeunload", handleBeforeUnload);
+//     };
+//   }, [selectedUser]);
+
+//   useEffect(() => {
+//     if (!selectedUser || !auth.currentUser) return;
+
+//     const q = query(collection(db, "chats"), orderBy("timestamp"));
+
+//     const unsubscribe = onSnapshot(q, (snapshot) => {
+//       setMessages(
+//         snapshot.docs
+//           .map((doc) => ({ id: doc.id, ...doc.data() }))
+//           .filter(
+//             (msg) =>
+//               (msg.senderId === auth.currentUser?.uid &&
+//                 msg.userId === selectedUser.id) ||
+//               (msg.senderId === selectedUser.id &&
+//                 msg.userId === auth.currentUser?.uid)
+//           )
+//       );
+//     });
+
+//     const typingStatusRef = doc(
+//       db,
+//       "typingStatus",
+//       `${selectedUser.id}_${auth.currentUser?.uid}`
+//     );
+//     const unsubscribeTyping = onSnapshot(typingStatusRef, (docSnap) => {
+//       if (docSnap.exists()) {
+//         setOtherUserTyping(docSnap.data().isTyping);
+//       }
+//     });
+
+//     return () => {
+//       unsubscribe();
+//       unsubscribeTyping();
+//     };
+//   }, [selectedUser]);
+
+//   useEffect(() => {
+//     scrollToBottom();
+//   }, [messages]);
+
+//   const scrollToBottom = () => {
+//     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+//   };
+
+//   const sendMessage = async () => {
+//     if (message.trim() && auth.currentUser) {
+//       const newMessage = {
+//         text: message,
+//         userId: selectedUser.id,
+//         senderId: auth.currentUser.uid,
+//         timestamp: serverTimestamp(),
+//       };
+
+//       // Save the message in Firestore
+//       await addDoc(collection(db, "chats"), newMessage);
+
+//       // Send push notification
+//       const notificationRef = doc(db, "notifications", selectedUser.id);
+//       await setDoc(
+//         notificationRef,
+//         {
+//           messages: arrayUnion({
+//             text: message,
+//             senderId: auth.currentUser.uid,
+//             senderName: auth.currentUser.displayName || "Anonymous",
+//             timestamp: new Date(),
+//           }),
+//         },
+//         { merge: true }
+//       );
+
+//       // Send a push notification to the recipient (if their token exists)
+//       const recipientDocRef = doc(db, "users", selectedUser.id);
+//       const recipientSnapshot = await getDoc(recipientDocRef); // Fixed missing getDoc import
+//       const recipientData = recipientSnapshot.data();
+//       const recipientToken = recipientData?.fcmToken;
+
+//       if (recipientToken) {
+//         const payload = {
+//           notification: {
+//             title: `${auth.currentUser.displayName} sent you a message`,
+//             body: message,
+//           },
+//           token: recipientToken,
+//         };
+//         // Send notification
+//         await sendPushNotification(payload);
+//       }
+
+//       setMessage("");
+//       updateTypingStatus(false);
+//     }
+//   };
+
+//   const sendPushNotification = async (payload) => {
+//     // Logic to send push notification using FCM
+//     try {
+//       await fetch("https://fcm.googleapis.com/fcm/send", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//           Authorization: `BKSGTotW4YVLXEvvbkGDpLaQhWnw-_vd75zprPpxXlwu7Bj02o7L2b_574rqLIepAhChL8Ty4p8TEnyrdzO8rkA`, // Replace with your Firebase server key
+//         },
+//         body: JSON.stringify(payload),
+//       });
+//     } catch (error) {
+//       console.error("Error sending push notification:", error);
+//     }
+//   };
+
+//   // const handleKeyPress = (e) => {
+//   //   if (e.key === "Enter" && message.trim()) {
+//   //     sendMessage();
+//   //   }
+//   // };
+
+//   const handleInputChange = (e) => {
+//     setMessage(e.target.value);
+
+//     if (e.target.value.trim()) {
+//       if (!isTyping) {
+//         updateTypingStatus(true);
+//       }
+//     } else {
+//       updateTypingStatus(false);
+//     }
+//   };
+
+//   const updateTypingStatus = async (status) => {
+//     setIsTyping(status);
+//     if (!auth.currentUser) return;
+
+//     const typingStatusRef = doc(
+//       db,
+//       "typingStatus",
+//       `${auth.currentUser.uid}_${selectedUser.id}`
+//     );
+//     await setDoc(typingStatusRef, { isTyping: status }, { merge: true });
+//   };
+
+//   const clearChat = async () => {
+//     try {
+//       if (!auth.currentUser) return;
+
+//       const q = query(
+//         collection(db, "chats"),
+//         where("senderId", "in", [auth.currentUser.uid, selectedUser.id]),
+//         where("userId", "in", [auth.currentUser.uid, selectedUser.id])
+//       );
+//       const snapshot = await getDocs(q);
+
+//       const batchDelete = snapshot.docs.map((doc) => deleteDoc(doc.ref));
+//       await Promise.all(batchDelete);
+
+//       setMessages([]);
+//     } catch (error) {
+//       console.error("Error clearing chat:", error);
+//     }
+//   };
+
+//   const startEditing = (msgId, currentText) => {
+//     setEditingMessageId(msgId);
+//     setMessage(currentText); // Populate input box with the message text
+//   };
+
+//   const saveEditedMessage = async () => {
+//     if (editingMessageId && message.trim()) {
+//       const messageRef = doc(db, "chats", editingMessageId);
+//       await updateDoc(messageRef, {
+//         text: message,
+//         edited: true,
+//       });
+
+//       setEditingMessageId(null);
+//       setMessage("");
+
+//       // Turn off typing effect after saving the edit
+//       updateTypingStatus(false);
+//     }
+//   };
+
+//   const cancelEditing = () => {
+//     setEditingMessageId(null);
+//     setMessage(""); // Clear the input box
+
+//     // Turn off typing effect when canceling
+//     updateTypingStatus(false);
+//   };
+
+//   const deleteMessage = async (messageId) => {
+//     const messageRef = doc(db, "chats", messageId);
+//     await deleteDoc(messageRef);
+//   };
+//   if (
+//     typeof process !== "undefined" &&
+//     typeof process.nextTick === "function"
+//   ) {
+//     process.nextTick(() => {
+//       console.log("Next tick executed!");
+//     });
+//   } else {
+//     setTimeout(() => {
+//       console.log("Fallback for next tick!");
+//     }, 0);
+//   }
+
+//   //calling
+//   const startCall = async () => {
+//     try {
+//       setIsCalling(true);
+
+//       // Check if navigator.mediaDevices.getUserMedia is available
+//       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+//         console.error("Media devices API is not available in this browser.");
+//         return;
+//       }
+
+//       // Get local media stream
+//       const stream = await navigator.mediaDevices.getUserMedia({
+//         video: true,
+//         audio: true,
+//       });
+//       setLocalStream(stream);
+
+//       // Create a peer connection
+//       const peer = new SimplePeer({
+//         initiator: true,
+//         trickle: false,
+//         stream,
+//       });
+
+//       // Signal offer to Firestore
+//       peer.on("signal", async (offer) => {
+//         const callDoc = doc(
+//           db,
+//           "calls",
+//           `${auth.currentUser.uid}_${selectedUser.id}`
+//         );
+//         await setDoc(callDoc, { offer });
+//       });
+
+//       // Receive remote stream
+//       peer.on("stream", (remoteStream) => {
+//         setRemoteStream(remoteStream);
+//       });
+
+//       setPeerConnection(peer);
+//     } catch (error) {
+//       console.error("Error starting call:", error);
+//       setIsCalling(false);
+//     }
+//   };
+
+//   const answerCall = async () => {
+//     try {
+//       setIsCalling(true);
+
+//       // Check if navigator.mediaDevices.getUserMedia is available
+//       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+//         console.error("Media devices API is not available in this browser.");
+//         return;
+//       }
+
+//       // Get local media stream
+//       const stream = await navigator.mediaDevices.getUserMedia({
+//         video: true,
+//         audio: true,
+//       });
+//       setLocalStream(stream);
+
+//       const peer = new SimplePeer({
+//         initiator: false,
+//         trickle: false,
+//         stream,
+//       });
+
+//       // Listen for offer and respond with answer
+//       const callDoc = doc(
+//         db,
+//         "calls",
+//         `${selectedUser.id}_${auth.currentUser.uid}`
+//       );
+//       const callSnapshot = await getDoc(callDoc);
+
+//       if (callSnapshot.exists()) {
+//         peer.signal(callSnapshot.data().offer);
+//       }
+
+//       peer.on("signal", async (answer) => {
+//         await updateDoc(callDoc, { answer });
+//       });
+
+//       peer.on("stream", (remoteStream) => {
+//         setRemoteStream(remoteStream);
+//       });
+
+//       setPeerConnection(peer);
+//     } catch (error) {
+//       console.error("Error answering call:", error);
+//       setIsCalling(false);
+//     }
+//   };
+
+//   const endCall = () => {
+//     if (peerConnection) {
+//       peerConnection.destroy();
+//       setPeerConnection(null);
+//     }
+//     if (localStream) {
+//       localStream.getTracks().forEach((track) => track.stop()); // Properly stop local media tracks
+//     }
+//     setLocalStream(null);
+//     setRemoteStream(null);
+//     setIsCalling(false);
+//   };
+
+//   return (
+//     <div className="message-area ms-auto rounded-0">
+//       <div
+//         className="chat-top-bar d-flex justify-content-between align-items-center p-2 border-bottom"
+//         style={{ backgroundColor: "#075e54" }}
+//       >
+//         {selectedUser && (
+//           <div className="current-user-profile align-items-center">
+//             <div className="d-flex align-items-center">
+//               <div>
+//                 <button
+//                   onClick={goBack}
+//                   style={{
+//                     display: "block",
+//                     marginBottom: "10px",
+//                     backgroundColor: "transparent",
+//                     color: "white",
+//                     border: "none",
+//                     borderRadius: "5px",
+//                   }}
+//                 >
+//                   <i className="fa-solid fa-circle-arrow-left fs-5 me-1"></i>
+//                 </button>
+//               </div>
+//               <div>
+//                 <h2 className="text-white mb-0">{selectedUser?.name}</h2>
+//                 <span className="ms-2 text-white" style={{ fontSize: "13px" }}>
+//                   {selectedUser.isOnline ? "Online" : "Offline"}
+//                 </span>
+//               </div>
+//             </div>
+//           </div>
+//         )}
+
+//         <Dropdown align="end">
+//           <Dropdown.Toggle
+//             variant="button"
+//             bsPrefix="p-2"
+//             id="dropdown-basic"
+//             className="text-white fw-bold fs-5"
+//           >
+//             &#8942;
+//           </Dropdown.Toggle>
+
+//           <Dropdown.Menu>
+//             <Dropdown.Item onClick={clearChat}>Clear Chat</Dropdown.Item>
+//           </Dropdown.Menu>
+//         </Dropdown>
+//       </div>
+
+//       {/* // <button
+//           //   style={{ fontSize: "10px" }}
+//           //   className=""
+//           //   onClick={() => deleteMessage(msg.id)}
+//           // >
+//           //   Delete
+//           // </button> */}
+
+//       <div className="messages">
+//         {messages.map((msg, index) => (
+//           <div
+//             key={index}
+//             className={`message ${
+//               msg.senderId === auth.currentUser?.uid ? "sent" : "received"
+//             }`}
+//           >
+//             <div className="d-flex align-items-baseline">
+//               <div className="d-flex align-items-center">
+//                 <p className="msg-marg">{msg.text}</p>
+//                 <p className="mb-0">
+//                   {msg.edited && (
+//                     <span
+//                       className="text-black-50 ms-1"
+//                       style={{ fontSize: "10px" }}
+//                     >
+//                       Edited
+//                     </span>
+//                   )}
+//                 </p>
+//               </div>
+//               {msg.senderId === auth.currentUser?.uid && (
+//                 <Dropdown align="">
+//                   <Dropdown.Toggle
+//                     variant="button"
+//                     bsPrefix="p-0 fs-6 "
+//                     id="dropdown-basic"
+//                     className="text-black fw-bold ms-2"
+//                   >
+//                     &#8942;
+//                   </Dropdown.Toggle>
+
+//                   <Dropdown.Menu>
+//                     <Dropdown.Item
+//                       onClick={() => startEditing(msg.id, msg.text)}
+//                       className="edit-btn px-0"
+//                       style={{ fontSize: "13px" }}
+//                     >
+//                       Edit
+//                     </Dropdown.Item>
+//                     <Dropdown.Item
+//                       className="px-0"
+//                       style={{ fontSize: "13px" }}
+//                       onClick={() => deleteMessage(msg.id)}
+//                     >
+//                       Delete
+//                     </Dropdown.Item>
+//                   </Dropdown.Menu>
+//                 </Dropdown>
+//               )}
+//             </div>
+//           </div>
+//         ))}
+//         <div ref={messagesEndRef} />
+//       </div>
+
+//       {otherUserTyping && (
+//         <div className="typing-indicator">
+//           <span> The other user is typing...</span>
+//           <div className="typing-dots">
+//             <span></span>
+//             <span></span>
+//             <span></span>
+//           </div>
+//         </div>
+//       )}
+
+//       {/* Input Area */}
+//       <div className="input-area">
+//         <input
+//           type="text"
+//           placeholder="Type a message"
+//           value={message}
+//           onChange={handleInputChange}
+//           onKeyDown={(e) =>
+//             e.key === "Enter" &&
+//             (editingMessageId ? saveEditedMessage() : sendMessage())
+//           }
+//         />
+//         {editingMessageId ? (
+//           <div className="d-flex gap-2">
+//             <button
+//               className=""
+//               style={{ padding: "10px 12px 7px" }}
+//               onClick={saveEditedMessage}
+//             >
+//               <i class="fa-solid fa-check fs-5"></i>
+//             </button>
+//             <button
+//               className="bg-danger"
+//               style={{ padding: "10px 12px 7px" }}
+//               onClick={cancelEditing}
+//             >
+//               <i class="fa-solid fa-xmark fs-5 "></i>
+//             </button>
+//           </div>
+//         ) : (
+//           <div>
+//             <button onClick={sendMessage}>
+//               <Image src={sendIcon} style={{ width: "20px" }} />
+//             </button>
+//             <button onClick={startCall} className="btn btn-primary">
+//               Call
+//             </button>
+//             <button onClick={answerCall} className="btn btn-success">
+//               Answer
+//             </button>
+//             <button onClick={endCall} className="btn btn-danger">
+//               End Call
+//             </button>
+//           </div>
+//         )}
+//       </div>
+//       <div className="call-container">
+//         {localStream && (
+//           <video
+//             autoPlay
+//             muted
+//             playsInline
+//             ref={(video) => video && (video.srcObject = localStream)}
+//           />
+//         )}
+//         {remoteStream && (
+//           <video
+//             autoPlay
+//             playsInline
+//             ref={(video) => video && (video.srcObject = remoteStream)}
+//           />
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default MessageArea;
 
 //New Way Notification Up side code is same to same but notification UI Different
 

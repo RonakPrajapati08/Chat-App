@@ -51,16 +51,6 @@
   background-color: #fff;
 }
 
-.input-area {
-  display: flex;
-  padding: 10px;
-}
-
-.input-area input {
-  flex: 1;
-  padding: 10px;
-}
-
 .message-area {
   display: flex;
   width: 100%;
@@ -84,19 +74,24 @@
 
 .message {
   max-width: 70%;
-  padding: 8px 15px;
-  font-size: 15px;
+  padding: 5px 8px 0px;
+  font-size: 14px;
   line-height: 1.4;
   color: #333;
   word-wrap: break-word;
+}
+.msg-marg{
+  margin-bottom: 9px;
 }
 
 .message.sent {
   background-color: #dcf8c6; /* WhatsApp-style green bubble */
   border-radius: 10px;
+  margin-right: 5px;
   border-start-end-radius: 0 ;
   align-self: flex-end;
   color: #000;
+  border: 1px solid #ddd;
 }
 
 .message.received {
@@ -127,18 +122,19 @@
 }
 
 .input-area button {
-  background-color: #009688; /* WhatsApp-style send button */
+  background-color: #21C063; /* WhatsApp-style send button */
   color: #fff;
   border: none;
-  padding: 10px 15px;
+  padding: 10px 13px;
   border-radius: 50%;
   cursor: pointer;
   font-size: 15px;
+  box-shadow: 0 1px 3px rgba(30, 30, 30, 0.756);
 }
 
-.input-area button:hover {
-  background-color: #00796b;
-}
+/* .input-area button:hover {
+  background-color: #21C063;
+} */
 
 @media (max-width: 600px) {
   .message {
