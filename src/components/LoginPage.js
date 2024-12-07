@@ -312,6 +312,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Link } from "react-router-dom";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -441,7 +442,9 @@ const LoginPage = () => {
             </button>
           </form>
           <p className="text-center mt-3">
-            Don't have an account? <a href="/Chat-App/signup">Sign up here</a>
+            Don't have an account? <Link to="/SignUp">Sign up here</Link>
+            {/* aenker tage not user becuase anker tage is not redirect signup page
+            in github file signup page empty Replace to Link tage */}
           </p>
         </div>
       </div>

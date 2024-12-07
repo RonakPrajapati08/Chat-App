@@ -10,7 +10,7 @@ function App() {
     <Router basename="/Chat-App">
       <Routes>
         <Route path="/" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUp />} />
+        <Route path="/SignUp" element={<SignUp />} />
         <Route path="/chat/:userId" element={<ChatPage />} />
       </Routes>
     </Router>
