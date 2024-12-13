@@ -793,7 +793,7 @@
 //Popup message Show sender and reciever side 05/12/2024
 
 import React, { useState, useEffect, useRef } from "react";
-import { db, auth, requestNotificationPermission } from "../firebaseConfig";
+import { db, auth } from "../firebaseConfig";
 import {
   collection,
   addDoc,
@@ -829,9 +829,9 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
 
   useEffect(() => {
     // Request notification permission when component mounts
-    if (auth.currentUser) {
-      requestNotificationPermission(); // Request notification permission
-    }
+    // if (auth.currentUser) {
+    //   requestNotificationPermission(); // Request notification permission
+    // }
 
     const handleBeforeUnload = (event) => {
       event.preventDefault();

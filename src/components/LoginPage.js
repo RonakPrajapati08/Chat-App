@@ -306,6 +306,163 @@
 
 // export default LoginPage;
 
+// import React, { useState, useEffect } from "react";
+// import { auth, db } from "../firebaseConfig";
+// import { signInWithEmailAndPassword } from "firebase/auth";
+// import { doc, getDoc, setDoc } from "firebase/firestore";
+// import { useNavigate } from "react-router-dom";
+// import "bootstrap/dist/css/bootstrap.min.css";
+// import { Link } from "react-router-dom";
+
+// const LoginPage = () => {
+//   const [email, setEmail] = useState("");
+//   const [password, setPassword] = useState("");
+//   const [name, setName] = useState("");
+//   const [profileImage, setProfileImage] = useState(null);
+//   const [error, setError] = useState("");
+//   const [loading, setLoading] = useState(false);
+//   const navigate = useNavigate();
+
+//   const handleImageUpload = (file) => {
+//     const reader = new FileReader();
+//     reader.onload = (e) => {
+//       setProfileImage(e.target.result); // Save Base64 string
+//       localStorage.setItem("profileImage", e.target.result); // Save image in local storage
+//     };
+//     reader.readAsDataURL(file);
+//   };
+
+//   useEffect(() => {
+//     if (auth.currentUser) {
+//       navigate(`/chat/${auth.currentUser.uid}`, {
+//         state: { successMessage: "Successfully logged in!" }, // Pass message on login
+//       });
+//     }
+//   }, [navigate]);
+
+//   const handleLogin = async (e) => {
+//     e.preventDefault();
+//     setError("");
+//     setLoading(true);
+
+//     try {
+//       const userCredential = await signInWithEmailAndPassword(
+//         auth,
+//         email,
+//         password
+//       );
+//       const user = userCredential.user;
+
+//       const userDocRef = doc(db, "users", user.uid);
+//       const userDoc = await getDoc(userDocRef);
+
+//       if (userDoc.exists()) {
+//         const userData = userDoc.data();
+//         if (userData.name && userData.email === email) {
+//           // Redirect to /chat with success message
+//           navigate(`/chat/${user.uid}`, {
+//             state: { successMessage: "Successfully logged in!" }, // Pass message on login
+//           });
+//         } else {
+//           await auth.signOut();
+//           setError("Your profile information is incomplete or incorrect.");
+//         }
+//       } else {
+//         await setDoc(doc(db, "users", user.uid), {
+//           name: name,
+//           email: email,
+//           isOnline: true,
+//         });
+//         // Redirect to /chat with success message
+//         navigate(`/chat/${user.uid}`, {
+//           state: { successMessage: "Successfully logged in!" }, // Pass message on login
+//         });
+//       }
+//     } catch (error) {
+//       setError("Invalid login credentials.");
+//       console.error("Login error:", error.message);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   return (
+//     <div className="container-fluid d-flex align-items-center justify-content-center min-vh-100 bg-dark">
+//       <div className="col-md-6 col-lg-4">
+//         <div className="card shadow-sm p-4 shadow-lg">
+//           <h2 className="text-center mb-4 fw-bold">R-Login</h2>
+//           {error && <p className="text-danger text-center">{error}</p>}
+//           <form onSubmit={handleLogin}>
+//             <div className="mb-3">
+//               <label htmlFor="name" className="form-label">
+//                 Name
+//               </label>
+//               <input
+//                 type="text"
+//                 id="name"
+//                 className="form-control"
+//                 placeholder="Enter your name"
+//                 value={name}
+//                 onChange={(e) => setName(e.target.value)}
+//                 required
+//               />
+//             </div>
+//             <div className="mb-3">
+//               <label htmlFor="email" className="form-label">
+//                 Email
+//               </label>
+//               <input
+//                 type="email"
+//                 id="email"
+//                 className="form-control"
+//                 placeholder="Enter your email"
+//                 value={email}
+//                 onChange={(e) => setEmail(e.target.value)}
+//                 required
+//               />
+//             </div>
+//             <div className="mb-3">
+//               <label htmlFor="password" className="form-label">
+//                 Password
+//               </label>
+//               <input
+//                 type="password"
+//                 id="password"
+//                 className="form-control show"
+//                 placeholder="Enter your password"
+//                 value={password}
+//                 onChange={(e) => setPassword(e.target.value)}
+//                 required
+//               />
+//             </div>
+//             <div className="mb-3">
+//               <label htmlFor="profileImage" className="form-label">
+//                 Profile Image
+//               </label>
+//               <input
+//                 type="file"
+//                 id="profileImage"
+//                 className="form-control"
+//                 accept="image/*"
+//                 onChange={(e) => handleImageUpload(e.target.files[0])}
+//               />
+//             </div>
+
+//             <button type="submit" disabled={loading} className="btn btn-primary w-100">
+//               {loading ? "Logging in..." : "Login"}
+//             </button>
+//           </form>
+//           <p className="text-center mt-3">
+//             Don't have an account? <Link to="/SignUp">Sign up here</Link>
+//           </p>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default LoginPage;
+
 import React, { useState, useEffect } from "react";
 import { auth, db } from "../firebaseConfig";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -320,6 +477,7 @@ const LoginPage = () => {
   const [name, setName] = useState("");
   const [profileImage, setProfileImage] = useState(null);
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleImageUpload = (file) => {
@@ -333,13 +491,16 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (auth.currentUser) {
-      navigate(`/chat/${auth.currentUser.uid}`); // Navigate to chat page with user ID in URL
+      navigate(`/chat/${auth.currentUser.uid}`, {
+        state: { successMessage: "Successfully logged in!" }, // Pass message on login
+      });
     }
   }, [navigate]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
       const userCredential = await signInWithEmailAndPassword(
@@ -355,7 +516,8 @@ const LoginPage = () => {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         if (userData.name && userData.email === email) {
-          // Redirect to /chat with user ID
+          // Store success message in sessionStorage and redirect to /chat
+          sessionStorage.setItem("successMessage", "Successfully logged in!");
           navigate(`/chat/${user.uid}`);
         } else {
           await auth.signOut();
@@ -367,11 +529,15 @@ const LoginPage = () => {
           email: email,
           isOnline: true,
         });
-        navigate(`/chat/${user.uid}`); // Redirect after profile is created
+        // Store success message in sessionStorage and redirect to /chat
+        sessionStorage.setItem("successMessage", "Successfully logged in!");
+        navigate(`/chat/${user.uid}`);
       }
     } catch (error) {
       setError("Invalid login credentials.");
       console.error("Login error:", error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -437,14 +603,12 @@ const LoginPage = () => {
               />
             </div>
 
-            <button type="submit" className="btn btn-primary w-100">
-              Login
+            <button type="submit" disabled={loading} className="btn btn-primary w-100">
+              {loading ? 'Login in...' : 'Login'}
             </button>
           </form>
           <p className="text-center mt-3">
             Don't have an account? <Link to="/SignUp">Sign up here</Link>
-            {/* aenker tage not user becuase anker tage is not redirect signup page
-            in github file signup page empty Replace to Link tage */}
           </p>
         </div>
       </div>
@@ -453,6 +617,7 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
+
 
 // LoginPage.js
 // import React, { useState, useEffect } from "react";

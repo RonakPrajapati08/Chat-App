@@ -289,7 +289,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { getMessaging, getToken } from "firebase/messaging"; // Add getToken import here
+import { getMessaging, getToken, onMessage } from "firebase/messaging"; // Add getToken import here
 
 // Firebase configuration
 const firebaseConfig = {
@@ -309,16 +309,16 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 const db = getFirestore(app);
 const storage = getStorage(app);
-
+const messaging = getMessaging(app);
 // Check for service worker support before proceeding with messaging
-let messaging;
-if ("serviceWorker" in navigator) {
-  messaging = getMessaging(app);
-} else {
-  console.warn(
-    "Service Workers are not supported in this browser. Push notifications won't work."
-  );
-}
+// let messaging;
+// if ("serviceWorker" in navigator) {
+//   messaging = getMessaging(app);
+// } else {
+//   console.warn(
+//     "Service Workers are not  supported in this browser. Push notifications won't work."
+//   );
+// }
 
 // Function to check and set user profile
 const checkUserProfile = async (user) => {
@@ -365,28 +365,28 @@ const updateUserStatus = async (userId, status) => {
 };
 
 // Function to request push notification permission and get the FCM token
-const requestNotificationPermission = async () => {
-  if ("serviceWorker" in navigator && messaging) {
-    try {
-      const token = await getToken(messaging, {
-        vapidKey:
-          "BKSGTotW4YVLXEvvbkGDpLaQhWnw-_vd75zprPpxXlwu7Bj02o7L2b_574rqLIepAhChL8Ty4p8TEnyrdzO8rkA",
-      });
-      if (token) {
-        console.log("Notification Token:", token);
-        await setDoc(
-          doc(db, "users", auth.currentUser.uid),
-          { fcmToken: token },
-          { merge: true }
-        );
-      }
-    } catch (error) {
-      console.error("Error getting notification token:", error);
-    }
-  } else {
-    console.warn("Push notifications are not supported on this browser.");
-  }
-};
+// const requestNotificationPermission = async () => {
+//   if ("serviceWorker" in navigator && messaging) {
+//     try {
+//       const token = await getToken(messaging, {
+//         vapidKey:
+//           "BKSGTotW4YVLXEvvbkGDpLaQhWnw-_vd75zprPpxXlwu7Bj02o7L2b_574rqLIepAhChL8Ty4p8TEnyrdzO8rkA",
+//       });
+//       if (token) {
+//         console.log("Notification Token:", token);
+//         await setDoc(
+//           doc(db, "users", auth.currentUser.uid),
+//           { fcmToken: token },
+//           { merge: true }
+//         );
+//       }
+//     } catch (error) {
+//       console.error("Error getting notification token:", error);
+//     }
+//   } else {
+//     console.warn("Push notifications are not supported on this browser.");
+//   }
+// };
 
 // Export necessary Firebase functions and constants
 export {
@@ -394,6 +394,9 @@ export {
   googleProvider,
   db,
   storage,
+  onMessage,
+  getToken,
+  messaging,
   updateUserStatus,
-  requestNotificationPermission,
+  // requestNotificationPermission,
 };

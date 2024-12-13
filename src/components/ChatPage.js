@@ -667,6 +667,7 @@ import MessageArea from "./MessageArea";
 import { useNavigate, useParams } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Spinner from "react-bootstrap/Spinner";
+import { useLocation } from "react-router-dom";
 
 const ChatPage = () => {
   const { userId } = useParams(); // Use URL parameter for userId
@@ -677,6 +678,13 @@ const ChatPage = () => {
     JSON.parse(localStorage.getItem("currentUser")) || null
   );
   const navigate = useNavigate();
+
+  const location = useLocation();
+  const successMessage = location.state?.successMessage || null; // Retrieve success message from state
+  const [showToast, setShowToast] = useState(false);
+  const [message, setMessage] = useState("");
+
+
 
   useEffect(() => {
     const checkUserProfile = async (user) => {
@@ -692,6 +700,9 @@ const ChatPage = () => {
         navigate("/profile-completion");
       }
     };
+
+
+
 
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -710,6 +721,19 @@ const ChatPage = () => {
 
     return () => unsubscribeAuth();
   }, [navigate, userId]);
+
+  useEffect(() => {
+    if (successMessage) {
+      setShowToast(true);
+      const timer = setTimeout(() => {
+        setShowToast(false);
+      }, 3000); // Close toast after 3 seconds
+
+      return () => clearTimeout(timer); // Cleanup timeout on component unmount
+    }
+  }, [successMessage]);
+
+
 
   useEffect(() => {
     if (currentUser) {
@@ -738,15 +762,49 @@ const ChatPage = () => {
   }, [currentUser]);
 
   useEffect(() => {
-    if (selectedUser) {
-      localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
-    } else {
-      localStorage.removeItem("selectedUser");
+    // Get the success message from sessionStorage
+    const successMessage = sessionStorage.getItem("successMessage");
+
+    if (successMessage) {
+      setMessage(successMessage);
+      setShowToast(true);
+      sessionStorage.removeItem("successMessage"); // Remove message after it's shown
+
+      // Hide the toast after 3 seconds
+      setTimeout(() => {
+        console.log("Hiding toast after 3 seconds");
+        setShowToast(false);
+      }, 3000);
+
+      // return () => {
+      //   console.log("Cleanup: clearing timeout");
+      //   clearTimeout(timer); // Cleanup timeout on unmount
+      // }
     }
-  }, [selectedUser]);
+  }, []);
 
   return (
     <div className="chat-page ">
+
+      {showToast && message && (
+        <div
+          className="toast align-items-center text-bg-success position-fixed top-0 end-0 translate-middle-x m-3 show"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          <div className="d-flex">
+            <div className="toast-body">{message}</div>
+            <button
+              type="button"
+              className="btn-close btn-close-white me-2 m-auto"
+              aria-label="Close"
+              onClick={() => setShowToast(false)} // Allow manual close
+            ></button>
+          </div>
+        </div>
+      )}
+
       {currentUser ? (
         <>
           <div

@@ -1,11 +1,48 @@
 // App.js
-import React from "react";
+// import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
 import SignUp from "./components/SignUp";
 import ChatPage from "./components/ChatPage";
+import React, { useEffect } from "react";
+import { messaging, getToken, onMessage } from "./firebaseConfig";
 
 function App() {
+  useEffect(() => {
+    // Request notification permission
+    Notification.requestPermission().then((permission) => {
+      if (permission === "granted") {
+        console.log("Notification permission granted.");
+
+        // Get FCM token
+        getToken(messaging, {
+          vapidKey:
+            "BBr4kY2lvVcjhWRxJREA-UfFP3HXReKDwcZdXZAtugLaTWmJh-NtUhYIpQioybwl3uR6iqxaTmiScWCfm8bzY1U",
+        })
+          .then((currentToken) => {
+            if (currentToken) {
+              console.log("FCM Token:", currentToken);
+              // Send this token to your backend to save it for future notifications
+            } else {
+              console.log("No registration token available.");
+            }
+          })
+          .catch((err) => {
+            console.error("Error getting FCM token:", err);
+          });
+      } else {
+        console.error("Notification permission denied.");
+      }
+    });
+
+    // Handle foreground messages
+    onMessage(messaging, (payload) => {
+      console.log("Message received. ", payload);
+      // Show notification or handle it in-app
+      alert(`New message: ${payload.notification.body}`);
+    });
+  }, []);
+
   return (
     <Router basename="/Chat-App">
       <Routes>
