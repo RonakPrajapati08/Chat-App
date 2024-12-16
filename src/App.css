@@ -269,3 +269,19 @@
   }
 }
 
+.show-mobile{
+  position: absolute;
+  top: 0;
+  padding: 8px 12px;
+  right: 0;
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (max-width: 600px) {
+  .show-mobile{
+    position: absolute;
+    top: 100%;
+    right: -28%;
+
+  }
+}

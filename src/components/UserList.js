@@ -889,7 +889,6 @@
 
 // export default ChatList;
 
-
 //user profile uploaded image localstorage get (13/12/2024)
 
 // Importing necessary dependencies and Firebase configurations
@@ -1196,8 +1195,314 @@
 
 // export default ChatList;
 
-
 //user profile use email first latter not uploaded image localstorage get (13/12/2024) Updated.
+
+// import React, { useState, useEffect } from "react";
+// import { db, auth } from "../firebaseConfig";
+// import {
+//   collection,
+//   onSnapshot,
+//   doc,
+//   getDoc,
+//   getDocs,
+//   query,
+//   orderBy,
+//   limit,
+//   where,
+//   updateDoc,
+//   addDoc,
+// } from "firebase/firestore";
+// import Dropdown from "react-bootstrap/Dropdown";
+// import Modal from "react-bootstrap/Modal";
+// import Button from "react-bootstrap/Button";
+// import Form from "react-bootstrap/Form";
+// import Col from "react-bootstrap/Col";
+// import { useNavigate } from "react-router-dom";
+
+// const ChatList = ({ setSelectedUser }) => {
+//   const [users, setUsers] = useState([]);
+//   const [currentUserData, setCurrentUserData] = useState(null);
+//   const [lastMessages, setLastMessages] = useState({});
+//   const [showGroupModal, setShowGroupModal] = useState(false);
+//   const [groupName, setGroupName] = useState("");
+//   const [selectedParticipants, setSelectedParticipants] = useState([]);
+//   const navigate = useNavigate();
+
+//   const updateUserStatus = async (status) => {
+//     const currentUser = auth.currentUser;
+//     if (currentUser) {
+//       try {
+//         const userDocRef = doc(db, "users", currentUser.uid);
+//         await updateDoc(userDocRef, { isOnline: status });
+//       } catch (error) {
+//         console.error("Error updating user status:", error);
+//       }
+//     }
+//   };
+
+//   useEffect(() => {
+//     const fetchCurrentUser = async () => {
+//       const currentUser = auth.currentUser;
+//       if (currentUser) {
+//         const userDocRef = doc(db, "users", currentUser.uid);
+//         const userDoc = await getDoc(userDocRef);
+//         if (userDoc.exists()) {
+//           setCurrentUserData({ id: currentUser.uid, ...userDoc.data() });
+//         }
+//         await updateUserStatus(true);
+//       } else {
+//         console.log("No user is currently logged in.");
+//       }
+//     };
+
+//     fetchCurrentUser();
+
+//     const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
+//       const onlineUsers = snapshot.docs
+//         .map((doc) => ({ id: doc.id, ...doc.data() }))
+//         .filter((user) => user.isOnline && user.id !== auth.currentUser?.uid);
+
+//       setUsers(onlineUsers);
+//       if (auth.currentUser) fetchLastMessages(onlineUsers);
+//     });
+
+//     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
+//       if (user) {
+//         updateUserStatus(true);
+//         fetchCurrentUser();
+//       } else {
+//         setCurrentUserData(null);
+//         navigate("/login");
+//       }
+//     });
+
+//     return () => {
+//       unsubscribe();
+//       unsubscribeAuth();
+//     };
+//   }, [navigate]);
+
+//   const fetchLastMessages = async (onlineUsers) => {
+//     const currentUser = auth.currentUser;
+//     if (!currentUser) return;
+
+//     for (const user of onlineUsers) {
+//       const q = query(
+//         collection(db, "chats"),
+//         where("userId", "in", [currentUser.uid, user.id]),
+//         orderBy("timestamp", "desc"),
+//         limit(1)
+//       );
+
+//       const querySnapshot = await getDocs(q);
+//       if (!querySnapshot.empty) {
+//         const lastMessage = querySnapshot.docs[0].data().text;
+//         setLastMessages((prevMessages) => ({
+//           ...prevMessages,
+//           [user.id]: lastMessage,
+//         }));
+//       } else {
+//         setLastMessages((prevMessages) => ({
+//           ...prevMessages,
+//           [user.id]: "No messages yet",
+//         }));
+//       }
+//     }
+//   };
+
+//   const createGroup = async () => {
+//     if (!groupName || selectedParticipants.length === 0) {
+//       alert("Please provide a group name and select participants.");
+//       return;
+//     }
+
+//     try {
+//       const groupData = {
+//         name: groupName,
+//         participants: [auth.currentUser.uid, ...selectedParticipants],
+//         createdAt: new Date(),
+//         createdBy: auth.currentUser.uid,
+//         participantCount: selectedParticipants.length + 1,
+//       };
+
+//       await addDoc(collection(db, "groups"), groupData);
+
+//       // Clear inputs after creation
+//       setShowGroupModal(false);
+//       setGroupName("");
+//       setSelectedParticipants([]);
+//       alert("Group created successfully!");
+//     } catch (error) {
+//       console.error("Error creating group:", error);
+//     }
+//   };
+
+//   const logout = async () => {
+//     try {
+//       await updateUserStatus(false);
+//       await auth.signOut();
+//       navigate("/", { replace: true });
+//     } catch (error) {
+//       console.error("Error during logout:", error);
+//     }
+//   };
+
+//   // Function to generate the user's profile image with initials and background color
+//   const getUserProfileImage = (email) => {
+//     const firstLetter = email.charAt(0).toUpperCase();
+//     // const randomColor = "#" + Math.floor(Math.random()*16777215).toString(16); // Random background color
+//     return (
+//       <div
+//         style={{
+//           display: "flex",
+//           justifyContent: "center",
+//           alignItems: "center",
+//           width: "40px",
+//           height: "40px",
+//           borderRadius: "50%",
+//           backgroundColor: "rgb(224, 231, 255, 1)",
+//           color: "#4f46e5",
+//           fontWeight: "bold",
+//         }}
+//       >
+//         {firstLetter}
+//       </div>
+//     );
+//   };
+
+//   return (
+//     <div className="chat-list">
+//       <div className="d-flex justify-content-between align-items-center">
+//         <Col xs={6} md={4}>
+//           <h3 className="fw-bold">Whatsapp</h3>
+//         </Col>
+//         {currentUserData && (
+//           <div className="current-user-profile d-flex align-items-center">
+//             <span
+//               className={`status-indicator ${
+//                 currentUserData.isOnline ? "online" : "offline"
+//               }`}
+//               style={{
+//                 width: "10px",
+//                 height: "10px",
+//                 borderRadius: "50%",
+//                 marginRight: "8px",
+//                 backgroundColor: currentUserData.isOnline ? "green" : "red",
+//               }}
+//             ></span>
+//             <div style={{ marginRight: "8px" }}>
+//               {getUserProfileImage(currentUserData.email)}{" "}
+//               {/* Display profile image */}
+//             </div>
+//             <h3 className="fw-bold mb-0">{currentUserData.name || "User"}</h3>
+
+//             <Dropdown align="end">
+//               <Dropdown.Toggle
+//                 variant="button"
+//                 bsPrefix="p-2"
+//                 id="dropdown-basic"
+//                 className="text-black fw-bold fs-5"
+//               >
+//                 &#8942;
+//               </Dropdown.Toggle>
+
+//               <Dropdown.Menu>
+//                 <Dropdown.Item onClick={logout}>Logout</Dropdown.Item>
+//                 <Dropdown.Item onClick={() => setShowGroupModal(true)}>
+//                   Create Group
+//                 </Dropdown.Item>
+//               </Dropdown.Menu>
+//             </Dropdown>
+//           </div>
+//         )}
+//       </div>
+
+//       <hr />
+
+//       {users.map((user) => {
+//         return (
+//           <div
+//             key={user.id}
+//             onClick={() => setSelectedUser(user)}
+//             className="chat-item rounded-3 mb-2"
+//           >
+//             <div className="chat-item-info d-flex gap-2 align-items-center">
+//               <div style={{ marginLeft: "8px" }}>
+//                 {getUserProfileImage(user.email)} {/* Display profile image */}
+//               </div>
+
+//               <div>
+//                 <p className="mb-0 fw-semibold" style={{ fontSize: "18px" }}>
+//                   {user.name || "Unknown User"}
+//                 </p>
+//                 <p>{lastMessages[user.id] || "No messages yet"}</p>
+//               </div>
+//             </div>
+//             <span
+//               className={`status ${user.isOnline ? "online" : "offline"}`}
+//               style={{
+//                 width: "10px",
+//                 height: "10px",
+//                 borderRadius: "50%",
+//                 backgroundColor: user.isOnline ? "green" : "red",
+//               }}
+//             ></span>
+//           </div>
+//         );
+//       })}
+
+//       <Modal show={showGroupModal} onHide={() => setShowGroupModal(false)}>
+//         <Modal.Header closeButton>
+//           <Modal.Title>Create Group</Modal.Title>
+//         </Modal.Header>
+//         <Modal.Body>
+//           <Form>
+//             <Form.Group className="mb-3">
+//               <Form.Label>Group Name</Form.Label>
+//               <Form.Control
+//                 type="text"
+//                 placeholder="Enter group name"
+//                 value={groupName}
+//                 onChange={(e) => setGroupName(e.target.value)}
+//               />
+//             </Form.Group>
+//             <Form.Group className="mb-3">
+//               <Form.Label>Select Participants</Form.Label>
+//               {users.map((user) => (
+//                 <Form.Check
+//                   key={user.id}
+//                   type="checkbox"
+//                   label={user.name}
+//                   value={user.id}
+//                   onChange={(e) => {
+//                     const checked = e.target.checked;
+//                     setSelectedParticipants((prev) =>
+//                       checked
+//                         ? [...prev, user.id]
+//                         : prev.filter((id) => id !== user.id)
+//                     );
+//                   }}
+//                 />
+//               ))}
+//             </Form.Group>
+//           </Form>
+//         </Modal.Body>
+//         <Modal.Footer>
+//           <Button variant="secondary" onClick={() => setShowGroupModal(false)}>
+//             Cancel
+//           </Button>
+//           <Button variant="primary" onClick={createGroup}>
+//             Create Group
+//           </Button>
+//         </Modal.Footer>
+//       </Modal>
+//     </div>
+//   );
+// };
+
+// export default ChatList;
+
+//User last message time show (16/12/2024) Updated code
 
 import React, { useState, useEffect } from "react";
 import { db, auth } from "../firebaseConfig";
@@ -1222,14 +1527,15 @@ import Col from "react-bootstrap/Col";
 import { useNavigate } from "react-router-dom";
 
 const ChatList = ({ setSelectedUser }) => {
-  const [users, setUsers] = useState([]);
-  const [currentUserData, setCurrentUserData] = useState(null);
-  const [lastMessages, setLastMessages] = useState({});
-  const [showGroupModal, setShowGroupModal] = useState(false);
-  const [groupName, setGroupName] = useState("");
-  const [selectedParticipants, setSelectedParticipants] = useState([]);
+  const [users, setUsers] = useState([]); // Stores the list of online users
+  const [currentUserData, setCurrentUserData] = useState(null); // Stores current user data
+  const [lastMessages, setLastMessages] = useState({}); // Stores last message data (text + timestamp)
+  const [showGroupModal, setShowGroupModal] = useState(false); // Modal state for creating groups
+  const [groupName, setGroupName] = useState(""); // Group name input state
+  const [selectedParticipants, setSelectedParticipants] = useState([]); // Selected participants for group
   const navigate = useNavigate();
 
+  // Helper function to update the user's online status
   const updateUserStatus = async (status) => {
     const currentUser = auth.currentUser;
     if (currentUser) {
@@ -1242,6 +1548,7 @@ const ChatList = ({ setSelectedUser }) => {
     }
   };
 
+  // Fetch current user data and set online status
   useEffect(() => {
     const fetchCurrentUser = async () => {
       const currentUser = auth.currentUser;
@@ -1259,15 +1566,19 @@ const ChatList = ({ setSelectedUser }) => {
 
     fetchCurrentUser();
 
+    // Subscribe to online users and fetch their last messages
     const unsubscribe = onSnapshot(collection(db, "users"), (snapshot) => {
       const onlineUsers = snapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
         .filter((user) => user.isOnline && user.id !== auth.currentUser?.uid);
 
       setUsers(onlineUsers);
+
+      // Fetch last messages for online users
       if (auth.currentUser) fetchLastMessages(onlineUsers);
     });
 
+    // Subscribe to auth state changes
     const unsubscribeAuth = auth.onAuthStateChanged((user) => {
       if (user) {
         updateUserStatus(true);
@@ -1284,6 +1595,7 @@ const ChatList = ({ setSelectedUser }) => {
     };
   }, [navigate]);
 
+  // Fetch the last message for each user, including the timestamp
   const fetchLastMessages = async (onlineUsers) => {
     const currentUser = auth.currentUser;
     if (!currentUser) return;
@@ -1298,20 +1610,32 @@ const ChatList = ({ setSelectedUser }) => {
 
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
-        const lastMessage = querySnapshot.docs[0].data().text;
+        const lastMessageDoc = querySnapshot.docs[0].data();
         setLastMessages((prevMessages) => ({
           ...prevMessages,
-          [user.id]: lastMessage,
+          [user.id]: {
+            text: lastMessageDoc.text || "No message",
+            timestamp: lastMessageDoc.timestamp?.toDate() || null, // Store timestamp
+          },
         }));
       } else {
         setLastMessages((prevMessages) => ({
           ...prevMessages,
-          [user.id]: "No messages yet",
+          [user.id]: { text: "No messages yet", timestamp: null },
         }));
       }
     }
   };
 
+  // Format the timestamp for display
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp) return ""; // Return empty string if no timestamp
+    const date = new Date(timestamp);
+    const options = { hour: "2-digit", minute: "2-digit" }; // Format: HH:MM AM/PM
+    return date.toLocaleTimeString([], options);
+  };
+
+  // Handle group creation
   const createGroup = async () => {
     if (!groupName || selectedParticipants.length === 0) {
       alert("Please provide a group name and select participants.");
@@ -1339,6 +1663,7 @@ const ChatList = ({ setSelectedUser }) => {
     }
   };
 
+  // Handle user logout
   const logout = async () => {
     try {
       await updateUserStatus(false);
@@ -1349,10 +1674,9 @@ const ChatList = ({ setSelectedUser }) => {
     }
   };
 
-  // Function to generate the user's profile image with initials and background color
+  // Generate user's profile image with initials
   const getUserProfileImage = (email) => {
     const firstLetter = email.charAt(0).toUpperCase();
-    // const randomColor = "#" + Math.floor(Math.random()*16777215).toString(16); // Random background color
     return (
       <div
         style={{
@@ -1381,8 +1705,9 @@ const ChatList = ({ setSelectedUser }) => {
         {currentUserData && (
           <div className="current-user-profile d-flex align-items-center">
             <span
-              className={`status-indicator ${currentUserData.isOnline ? "online" : "offline"
-                }`}
+              className={`status-indicator ${
+                currentUserData.isOnline ? "online" : "offline"
+              }`}
               style={{
                 width: "10px",
                 height: "10px",
@@ -1392,7 +1717,7 @@ const ChatList = ({ setSelectedUser }) => {
               }}
             ></span>
             <div style={{ marginRight: "8px" }}>
-              {getUserProfileImage(currentUserData.email)} {/* Display profile image */}
+              {getUserProfileImage(currentUserData.email)}
             </div>
             <h3 className="fw-bold mb-0">{currentUserData.name || "User"}</h3>
 
@@ -1419,7 +1744,9 @@ const ChatList = ({ setSelectedUser }) => {
 
       <hr />
 
+      {/* Render online users with last message and timestamp */}
       {users.map((user) => {
+        const lastMessage = lastMessages[user.id] || {};
         return (
           <div
             key={user.id}
@@ -1427,15 +1754,20 @@ const ChatList = ({ setSelectedUser }) => {
             className="chat-item rounded-3 mb-2"
           >
             <div className="chat-item-info d-flex gap-2 align-items-center">
-
-
               <div style={{ marginLeft: "8px" }}>
-                {getUserProfileImage(user.email)} {/* Display profile image */}
+                {getUserProfileImage(user.email)}
               </div>
 
               <div>
-                <p className="mb-0 fw-semibold" style={{fontSize: "18px"}}>{user.name || "Unknown User"}</p>
-                <p>{lastMessages[user.id] || "No messages yet"}</p>
+                <p className="mb-0 fw-semibold" style={{ fontSize: "18px" }}>
+                  {user.name || "Unknown User"}
+                </p>
+                <p>
+                  {lastMessage.text || "No messages yet"} -{" "}
+                  <span style={{ fontSize: "12px", color: "gray" }}>
+                    {formatTimestamp(lastMessage.timestamp)}
+                  </span>
+                </p>
               </div>
             </div>
             <span
@@ -1447,7 +1779,6 @@ const ChatList = ({ setSelectedUser }) => {
                 backgroundColor: user.isOnline ? "green" : "red",
               }}
             ></span>
-
           </div>
         );
       })}
@@ -1502,7 +1833,6 @@ const ChatList = ({ setSelectedUser }) => {
 };
 
 export default ChatList;
-
 
 //Unread Message Counter show code
 

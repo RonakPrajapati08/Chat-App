@@ -684,8 +684,6 @@ const ChatPage = () => {
   const [showToast, setShowToast] = useState(false);
   const [message, setMessage] = useState("");
 
-
-
   useEffect(() => {
     const checkUserProfile = async (user) => {
       const userDocRef = doc(db, "users", user.uid);
@@ -700,9 +698,6 @@ const ChatPage = () => {
         navigate("/profile-completion");
       }
     };
-
-
-
 
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -732,8 +727,6 @@ const ChatPage = () => {
       return () => clearTimeout(timer); // Cleanup timeout on component unmount
     }
   }, [successMessage]);
-
-
 
   useEffect(() => {
     if (currentUser) {
@@ -779,32 +772,12 @@ const ChatPage = () => {
       // return () => {
       //   console.log("Cleanup: clearing timeout");
       //   clearTimeout(timer); // Cleanup timeout on unmount
-      // }
+      // };
     }
   }, []);
 
   return (
     <div className="chat-page ">
-
-      {showToast && message && (
-        <div
-          className="toast align-items-center text-bg-success position-fixed top-0 end-0 translate-middle-x m-3 show"
-          role="alert"
-          aria-live="assertive"
-          aria-atomic="true"
-        >
-          <div className="d-flex">
-            <div className="toast-body">{message}</div>
-            <button
-              type="button"
-              className="btn-close btn-close-white me-2 m-auto"
-              aria-label="Close"
-              onClick={() => setShowToast(false)} // Allow manual close
-            ></button>
-          </div>
-        </div>
-      )}
-
       {currentUser ? (
         <>
           <div
@@ -837,6 +810,26 @@ const ChatPage = () => {
           <Spinner animation="border" role="status">
             <span className="visually-hidden">Loading...</span>
           </Spinner>
+        </div>
+      )}
+
+      {showToast && message && (
+        <div
+          className=" align-items-center text-bg-success rounded-5 translate-middle-x m-3 show-mobile"
+          role="alert"
+          aria-live="assertive"
+          aria-atomic="true"
+        >
+          <div className="d-flex gap-2">
+            <div className="toast-body">{message}</div>
+            <button
+              type="button"
+              className="btn-close btn-close-white me-2 m-auto"
+              style={{ fontSize: "14px" }}
+              aria-label="Close"
+              onClick={() => setShowToast(false)} // Allow manual close
+            ></button>
+          </div>
         </div>
       )}
     </div>

@@ -289,7 +289,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { getMessaging, getToken, onMessage } from "firebase/messaging"; // Add getToken import here
+// import { getMessaging, getToken, onMessage } from "firebase/messaging"; // Add getToken import here
 
 // Firebase configuration
 const firebaseConfig = {
@@ -309,7 +309,7 @@ const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 const db = getFirestore(app);
 const storage = getStorage(app);
-const messaging = getMessaging(app);
+// const messaging = getMessaging(app);
 // Check for service worker support before proceeding with messaging
 // let messaging;
 // if ("serviceWorker" in navigator) {
@@ -394,9 +394,9 @@ export {
   googleProvider,
   db,
   storage,
-  onMessage,
-  getToken,
-  messaging,
+  // onMessage,
+  // getToken,
+  // messaging,
   updateUserStatus,
   // requestNotificationPermission,
 };
