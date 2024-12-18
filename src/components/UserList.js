@@ -1533,6 +1533,8 @@ const ChatList = ({ setSelectedUser }) => {
   const [showGroupModal, setShowGroupModal] = useState(false); // Modal state for creating groups
   const [groupName, setGroupName] = useState(""); // Group name input state
   const [selectedParticipants, setSelectedParticipants] = useState([]); // Selected participants for group
+  const [unreadCounts, setUnreadCounts] = useState({});
+
   const navigate = useNavigate();
 
   // Helper function to update the user's online status
@@ -1617,6 +1619,19 @@ const ChatList = ({ setSelectedUser }) => {
             text: lastMessageDoc.text || "No message",
             timestamp: lastMessageDoc.timestamp?.toDate() || null, // Store timestamp
           },
+        }));
+
+        // Count unread messages for the current user (18/12/2024)
+        const unreadMessagesQuery = query(
+          collection(db, "chats"),
+          where("userId", "==", currentUser.uid),
+          where("senderId", "==", user.id),
+          where("isRead", "==", false)
+        );
+        const unreadSnapshot = await getDocs(unreadMessagesQuery);
+        setUnreadCounts((prevCounts) => ({
+          ...prevCounts,
+          [user.id]: unreadSnapshot.size, // Update unread message count
         }));
       } else {
         setLastMessages((prevMessages) => ({
@@ -1747,6 +1762,8 @@ const ChatList = ({ setSelectedUser }) => {
       {/* Render online users with last message and timestamp */}
       {users.map((user) => {
         const lastMessage = lastMessages[user.id] || {};
+        const unreadCount = unreadCounts[user.id] || 0;
+
         return (
           <div
             key={user.id}
@@ -1770,7 +1787,13 @@ const ChatList = ({ setSelectedUser }) => {
                 </p>
               </div>
             </div>
-            <span
+
+            {/* Unread Message Count */}
+            {unreadCount > 0 && (
+              <span className="unread-count">{unreadCount}</span>
+            )}
+
+            {/* <span
               className={`status ${user.isOnline ? "online" : "offline"}`}
               style={{
                 width: "10px",
@@ -1778,7 +1801,7 @@ const ChatList = ({ setSelectedUser }) => {
                 borderRadius: "50%",
                 backgroundColor: user.isOnline ? "green" : "red",
               }}
-            ></span>
+            ></span> */}
           </div>
         );
       })}

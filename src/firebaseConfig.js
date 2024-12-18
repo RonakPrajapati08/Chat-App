@@ -400,3 +400,106 @@ export {
   updateUserStatus,
   // requestNotificationPermission,
 };
+
+// import { initializeApp } from "firebase/app";
+// import { getAuth, onAuthStateChanged, GoogleAuthProvider } from "firebase/auth";
+// import {
+//   getFirestore,
+//   doc,
+//   setDoc,
+//   getDoc,
+//   updateDoc,
+//   increment,
+// } from "firebase/firestore";
+// import { getStorage } from "firebase/storage";
+
+// // Firebase configuration
+// const firebaseConfig = {
+//   apiKey: "AIzaSyCpR8pjfUxza301B5zqQVqDr1XrIe8j1XQ",
+//   authDomain: "chat-app-d18c2.firebaseapp.com",
+//   databaseURL: "https://chat-app-d18c2-default-rtdb.firebaseio.com",
+//   projectId: "chat-app-d18c2",
+//   storageBucket: "chat-app-d18c2.firebasestorage.app",
+//   messagingSenderId: "409837506937",
+//   appId: "1:409837506937:web:12768c8b363932946f1fa8",
+//   measurementId: "G-FKKPXQJF9Q",
+// };
+
+// // Initialize Firebase
+// const app = initializeApp(firebaseConfig);
+// const auth = getAuth(app);
+// const googleProvider = new GoogleAuthProvider();
+// const db = getFirestore(app);
+// const storage = getStorage(app);
+
+// // Function to check and set user profile
+// const checkUserProfile = async (user) => {
+//   const userDocRef = doc(db, "users", user.uid);
+//   const docSnap = await getDoc(userDocRef);
+
+//   if (!docSnap.exists()) {
+//     // User does not have a profile, set default profile information
+//     await setDoc(userDocRef, {
+//       name: user.displayName || "Unknown",
+//       email: user.email || "Unknown",
+//       isOnline: true,
+//       lastMessage: "",
+//       unreadCount: 0, // Initialize unread count
+//     });
+//   } else {
+//     // Profile exists, just update the online status
+//     await updateDoc(userDocRef, { isOnline: true });
+//   }
+// };
+
+// // Listen for authentication state changes (log in/out)
+// onAuthStateChanged(auth, (user) => {
+//   if (user) {
+//     checkUserProfile(user); // Ensure user has a profile in Firestore
+//   } else {
+//     // User is signed out, set their status to offline
+//     const userId = auth.currentUser?.uid;
+//     if (userId) {
+//       updateUserStatus(userId, false); // Set the user as offline
+//     }
+//   }
+// });
+
+// // Function to update the user status in Firestore
+// const updateUserStatus = async (userId, status) => {
+//   const userDocRef = doc(db, "users", userId);
+
+//   try {
+//     await updateDoc(userDocRef, { isOnline: status });
+//     console.log("User status updated successfully");
+//   } catch (error) {
+//     console.error("Error updating user status:", error);
+//   }
+// };
+
+// // Function to increment unread message count
+// const incrementUnreadCount = async (receiverId) => {
+//   const userDocRef = doc(db, "users", receiverId);
+//   await updateDoc(userDocRef, {
+//     unreadCount: increment(1), // Increment unread count
+//   });
+// };
+
+// // Function to decrement unread message count when messages are read
+// const decrementUnreadCount = async (receiverId) => {
+//   const userDocRef = doc(db, "users", receiverId);
+//   await updateDoc(userDocRef, {
+//     unreadCount: increment(-1), // Decrement unread count
+//   });
+// };
+
+// // Export necessary Firebase functions and constants
+// export {
+//   auth,
+//   googleProvider,
+//   db,
+//   storage,
+//   updateUserStatus,
+//   incrementUnreadCount,
+//   decrementUnreadCount,
+// };
