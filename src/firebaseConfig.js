@@ -287,6 +287,8 @@ import {
   setDoc,
   getDoc,
   updateDoc,
+  collection,
+  getDocs,
 } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 // import { getMessaging, getToken, onMessage } from "firebase/messaging"; // Add getToken import here
@@ -319,6 +321,32 @@ const storage = getStorage(app);
 //     "Service Workers are not  supported in this browser. Push notifications won't work."
 //   );
 // }
+
+const updateChatsWithParticipants = async () => {
+  const chatsCollection = collection(db, "chats");
+  const querySnapshot = await getDocs(chatsCollection);
+
+  querySnapshot.forEach(async (chatDoc) => {
+    const chatData = chatDoc.data();
+
+    if (chatData.senderId && chatData.userId) {
+      const participantsArray = [chatData.senderId, chatData.userId];
+
+      await updateDoc(doc(db, "chats", chatDoc.id), {
+        participants: participantsArray,
+      });
+
+      console.log(
+        `Updated chat ${chatDoc.id} with participants`,
+        participantsArray
+      );
+    }
+  });
+
+  console.log("All chat documents updated successfully!");
+};
+
+updateChatsWithParticipants();
 
 // Function to check and set user profile
 const checkUserProfile = async (user) => {

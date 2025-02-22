@@ -1,11 +1,11 @@
 .chat-page {
-  display: flex;
+  /* display: flex; */
   /* height: 100vh; */
 }
 
 
 .chat-list {
-  width: 25%;
+  /* width: 25%; */
   border-right: 1px solid #ddd;
   padding: 10px;
   height: 100vh;
@@ -154,8 +154,8 @@
   padding: 10px;
   cursor: pointer;
   /* border: 1px solid #ddd; */
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.24);
-  background-color: #f6f6f692;
+  box-shadow: 0 2px 2px rgba(98, 97, 97, 0.303);
+  background-color: #f3f2f20e;
 }
 
 .chat-item-info {
@@ -227,7 +227,7 @@
   height: 80px;
   border-radius: 50%;
 }
-
+/* 
 .typing-indicator {
   display: flex;
   align-items: center;
@@ -267,7 +267,57 @@
   40% {
     transform: scale(1);
   }
+} */
+
+.typing-bubble {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #121212b9; /* Dark bubble color */
+  width: 40px;
+  height: 26px;
+  border-radius: 0 10px 10px 10px;
+  position: relative;
 }
+
+.typing-bubble::before {
+  content: "";
+  position: absolute;   
+  left: -10px;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-radius: 4px 0 0 0 ;
+  border-right: 10px solid #121212b9;
+  border-top: 2px solid transparent;
+  border-bottom: 7px solid transparent;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  margin: 0 2px;
+  background-color: #979595; /* Dot color */
+  border-radius: 50%;
+  animation: typing 1.5s infinite ease-in-out;
+}
+
+.dot:nth-child(1) {
+  animation-delay: 0s;
+}
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0.3; transform: scale(1); }
+}
+
 
 .show-mobile{
   position: absolute;

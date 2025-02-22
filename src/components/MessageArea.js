@@ -815,7 +815,11 @@ import "../App.css";
 import sendIcon from "./images/send.png";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const MessageArea = ({ selectedUser, setSelectedUser }) => {
+const MessageArea = ({
+  selectedUser,
+  setSelectedUser,
+  getUserProfileImage,
+}) => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -825,25 +829,26 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
 
   const goBack = () => {
     setSelectedUser(null); // Reset the selected user to return to ChatList
+    localStorage.removeItem("selectedUser"); // Remove it so it's reset when user goes
   };
 
-  useEffect(() => {
-    // Request notification permission when component mounts
-    // if (auth.currentUser) {
-    //   requestNotificationPermission(); // Request notification permission
-    // }
+  // useEffect(() => {
+  //   // Request notification permission when component mounts
+  //   // if (auth.currentUser) {
+  //   //   requestNotificationPermission(); // Request notification permission
+  //   // }
 
-    const handleBeforeUnload = (event) => {
-      event.preventDefault();
-      event.returnValue = ""; // Prevent page refresh
-    };
+  //   const handleBeforeUnload = (event) => {
+  //     event.preventDefault();
+  //     event.returnValue = ""; // Prevent page refresh
+  //   };
 
-    window.addEventListener("beforeunload", handleBeforeUnload);
+  //   window.addEventListener("beforeunload", handleBeforeUnload);
 
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [selectedUser]);
+  //   return () => {
+  //     window.removeEventListener("beforeunload", handleBeforeUnload);
+  //   };
+  // }, [selectedUser]);
 
   // useEffect(() => {
   //   if (!selectedUser || !auth.currentUser) return;
@@ -947,19 +952,12 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
 
   const sendMessage = async () => {
     if (message.trim() && auth.currentUser) {
-      // const newMessage = {
-      //   text: message,
-      //   userId: selectedUser.id,
-      //   senderId: auth.currentUser.uid,
-      //   timestamp: serverTimestamp(),
-      // };
-
       const newMessage = {
         text: message,
         userId: selectedUser.id,
         senderId: auth.currentUser.uid,
         timestamp: serverTimestamp(),
-        isRead: false, // New property for message read status
+        isRead: false,
       };
 
       // Save the message in Firestore
@@ -1117,18 +1115,24 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
                   onClick={goBack}
                   style={{
                     display: "block",
-                    marginBottom: "10px",
+                    marginBottom: "0",
                     backgroundColor: "transparent",
                     color: "white",
                     border: "none",
                     borderRadius: "5px",
                   }}
                 >
-                  <i className="fa-solid fa-circle-arrow-left fs-5 me-1"></i>
+                  <i className="fa-solid fa-arrow-left fs-5 me-1"></i>
                 </button>
               </div>
+
+              {/* Profile Image */}
+              <div className="me-2">
+                {getUserProfileImage(selectedUser.email)}
+              </div>
+
               <div>
-                <h2 className="text-white mb-0">{selectedUser?.name}</h2>
+                <h4 className="text-white mb-0">{selectedUser?.name}</h4>
                 <span className="ms-2 text-white" style={{ fontSize: "13px" }}>
                   {selectedUser.isOnline ? "Online" : "Offline"}
                 </span>
@@ -1219,13 +1223,18 @@ const MessageArea = ({ selectedUser, setSelectedUser }) => {
       </div>
 
       {otherUserTyping && (
-        <div className="typing-indicator">
-          <span> The other user is typing...</span>
-          <div className="typing-dots">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
+        // <div className="typing-indicator">
+        //   <span> The other user is typing...</span>
+        //   <div className="typing-dots">
+        //     <span></span>
+        //     <span></span>
+        //     <span></span>
+        //   </div>
+        // </div>
+        <div className="typing-bubble mb-2" style={{ marginLeft: "9px" }}>
+          <span className="dot"></span>
+          <span className="dot"></span>
+          <span className="dot"></span>
         </div>
       )}
 

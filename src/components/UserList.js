@@ -1519,14 +1519,17 @@ import {
   updateDoc,
   addDoc,
 } from "firebase/firestore";
-import Dropdown from "react-bootstrap/Dropdown";
-import Modal from "react-bootstrap/Modal";
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
-import Col from "react-bootstrap/Col";
+import {
+  Dropdown,
+  Modal,
+  Button,
+  Form,
+  Col,
+  // InputGroup,
+} from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
-const ChatList = ({ setSelectedUser }) => {
+const ChatList = ({ setSelectedUser, getUserProfileImage }) => {
   const [users, setUsers] = useState([]); // Stores the list of online users
   const [currentUserData, setCurrentUserData] = useState(null); // Stores current user data
   const [lastMessages, setLastMessages] = useState({}); // Stores last message data (text + timestamp)
@@ -1534,6 +1537,7 @@ const ChatList = ({ setSelectedUser }) => {
   const [groupName, setGroupName] = useState(""); // Group name input state
   const [selectedParticipants, setSelectedParticipants] = useState([]); // Selected participants for group
   const [unreadCounts, setUnreadCounts] = useState({});
+  const [searchTerm, setSearchTerm] = useState(""); // ✅ New state for search input
 
   const navigate = useNavigate();
 
@@ -1642,6 +1646,45 @@ const ChatList = ({ setSelectedUser }) => {
     }
   };
 
+  // const fetchLastMessages = async (onlineUsers) => {
+  //   const currentUser = auth.currentUser;
+  //   if (!currentUser) return;
+
+  //   let messagesData = {}; // Store messages separately
+
+  //   for (const user of onlineUsers) {
+  //     // ✅ Create a unique conversation ID (sorted to ensure consistency)
+  //     const conversationId =
+  //       currentUser.uid < user.id
+  //         ? [currentUser.uid, user.id]
+  //         : [user.id, currentUser.uid];
+
+  //     // ✅ Fetch the last message between the specific two users
+  //     const q = query(
+  //       collection(db, "chats"),
+  //       where("participants", "array-contains-any", [currentUser.uid, user.id]), // ✅ Fetch messages between these users
+  //       orderBy("timestamp", "desc"),
+  //       limit(1)
+  //     );
+
+  //     const querySnapshot = await getDocs(q);
+
+  //     if (!querySnapshot.empty) {
+  //       const lastMessageDoc = querySnapshot.docs[0].data();
+  //       messagesData[user.id] = {
+  //         text: lastMessageDoc.text || "No message",
+  //         timestamp: lastMessageDoc.timestamp?.toDate() || null,
+  //       };
+  //     } else {
+  //       // ✅ If no messages exist, set default value
+  //       messagesData[user.id] = { text: "No messages yet", timestamp: null };
+  //     }
+  //   }
+
+  //   // ✅ Update last messages for all users properly
+  //   setLastMessages(messagesData);
+  // };
+
   // Format the timestamp for display
   const formatTimestamp = (timestamp) => {
     if (!timestamp) return ""; // Return empty string if no timestamp
@@ -1689,33 +1732,16 @@ const ChatList = ({ setSelectedUser }) => {
     }
   };
 
-  // Generate user's profile image with initials
-  const getUserProfileImage = (email) => {
-    const firstLetter = email.charAt(0).toUpperCase();
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          width: "40px",
-          height: "40px",
-          borderRadius: "50%",
-          backgroundColor: "rgb(224, 231, 255, 1)",
-          color: "#4f46e5",
-          fontWeight: "bold",
-        }}
-      >
-        {firstLetter}
-      </div>
-    );
-  };
+  // ✅ Filter users based on search input
+  const filteredUsers = users.filter((user) =>
+    user.name?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="chat-list">
+    <div className="chat-list text-white">
       <div className="d-flex justify-content-between align-items-center">
         <Col xs={6} md={4}>
-          <h3 className="fw-bold">Whatsapp</h3>
+          <h3 className="fw-bold mb-0">Chat</h3>
         </Col>
         {currentUserData && (
           <div className="current-user-profile d-flex align-items-center">
@@ -1741,7 +1767,7 @@ const ChatList = ({ setSelectedUser }) => {
                 variant="button"
                 bsPrefix="p-2"
                 id="dropdown-basic"
-                className="text-black fw-bold fs-5"
+                className="text-white fw-bold fs-5"
               >
                 &#8942;
               </Dropdown.Toggle>
@@ -1759,8 +1785,19 @@ const ChatList = ({ setSelectedUser }) => {
 
       <hr />
 
+      {/* ✅ Search Input */}
+      <Form className="mb-3 shadow-sm rounded-2" style={{ outline: "none" }}>
+        <Form.Control
+          className="shadow-none"
+          type="text"
+          placeholder="Search users..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </Form>
+
       {/* Render online users with last message and timestamp */}
-      {users.map((user) => {
+      {filteredUsers.map((user) => {
         const lastMessage = lastMessages[user.id] || {};
         const unreadCount = unreadCounts[user.id] || 0;
 
@@ -1770,20 +1807,36 @@ const ChatList = ({ setSelectedUser }) => {
             onClick={() => setSelectedUser(user)}
             className="chat-item rounded-3 mb-2"
           >
-            <div className="chat-item-info d-flex gap-2 align-items-center">
+            <div className="chat-item-info d-flex gap-2 ">
               <div style={{ marginLeft: "8px" }}>
                 {getUserProfileImage(user.email)}
               </div>
 
-              <div>
-                <p className="mb-0 fw-semibold" style={{ fontSize: "18px" }}>
-                  {user.name || "Unknown User"}
-                </p>
-                <p>
-                  {lastMessage.text || "No messages yet"} -{" "}
-                  <span style={{ fontSize: "12px", color: "gray" }}>
+              <div className="w-100">
+                <div className="d-flex align-items-center justify-content-between">
+                  <p className="mb-0 fw-semibold" style={{ fontSize: "16px" }}>
+                    {user.name || "Unknown User"}
+                  </p>
+                  <span
+                    className="text-white"
+                    style={{ fontSize: "12px", color: "gray" }}
+                  >
                     {formatTimestamp(lastMessage.timestamp)}
                   </span>
+                </div>
+
+                <p
+                  className="text-white-50"
+                  style={{
+                    display: "-webkit-box",
+                    WebkitLineClamp: "1",
+                    WebkitBoxOrient: "vertical",
+                    overflow: "hidden",
+                    fontSize: "13px",
+                    letterSpacing: "0.7px",
+                  }}
+                >
+                  {lastMessage.text || "No messages yet"}{" "}
                 </p>
               </div>
             </div>

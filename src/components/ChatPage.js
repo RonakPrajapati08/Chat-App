@@ -768,43 +768,100 @@ const ChatPage = () => {
         console.log("Hiding toast after 3 seconds");
         setShowToast(false);
       }, 3000);
-
-      // return () => {
-      //   console.log("Cleanup: clearing timeout");
-      //   clearTimeout(timer); // Cleanup timeout on unmount
-      // };
     }
   }, []);
 
+  // ✅ Fix: Persist selected user after page refresh
+  useEffect(() => {
+    if (selectedUser) {
+      localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
+    }
+  }, [selectedUser]);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("selectedUser");
+    if (storedUser) {
+      setSelectedUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const isMobile = window.innerWidth <= 600;
+
+  // Generate user's profile image with initials
+  const getUserProfileImage = (email) => {
+    const firstLetter = email.charAt(0).toUpperCase();
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "40px",
+          height: "40px",
+          borderRadius: "50%",
+          backgroundColor: "rgb(224, 231, 255, 1)",
+          color: "#4f46e5",
+          fontWeight: "bold",
+        }}
+      >
+        {firstLetter}
+      </div>
+    );
+  };
+
   return (
-    <div className="chat-page ">
+    <div className="chat-page bg-dark px-0 container-fluid">
       {currentUser ? (
-        <>
+        <div className="d-flex flex-wrap">
+          {/* Chat List */}
           <div
-            className="chat-list-container"
+            className="col-12 col-md-4"
+            // style={{ maxWidth: "25%", minWidth: "280px" }}
             style={{
-              display: selectedUser ? "none" : "block",
-              width: "100%",
+              display: isMobile && selectedUser ? "none" : "block",
+              // width: "100%",
             }}
           >
-            <ChatList setSelectedUser={setSelectedUser} />
+            <ChatList
+              setSelectedUser={setSelectedUser}
+              getUserProfileImage={getUserProfileImage}
+            />
           </div>
 
+          {/* Message Area */}
           <div
-            className="message-area-container"
+            className="col-12 col-md-8 message-area-container"
+            // style={{ flexGrow: 1 }}
             style={{
-              display: selectedUser ? "block" : "none",
-              width: "100%",
+              flexGrow: 1,
+              display: isMobile && !selectedUser ? "none" : "block",
+              // width: "100%",
             }}
           >
             {selectedUser ? (
               <MessageArea
                 selectedUser={selectedUser}
                 setSelectedUser={setSelectedUser}
+                getUserProfileImage={getUserProfileImage}
               />
-            ) : null}
+            ) : (
+              <div
+                className="d-flex flex-column align-items-center justify-content-center text-center"
+                style={{ height: "100%", color: "#aaa" }}
+              >
+                <i
+                  className="fa-brands fa-whatsapp"
+                  style={{ fontSize: "60px", marginBottom: "10px" }}
+                ></i>
+                <h4>Start a Chat</h4>
+                <p>
+                  Send and receive messages without keeping your phone online.
+                </p>
+                <p>Use this chat on multiple devices at the same time.</p>
+              </div>
+            )}
           </div>
-        </>
+        </div>
       ) : (
         <div className="loading-spinner text-center">
           <Spinner animation="border" role="status">
@@ -813,23 +870,22 @@ const ChatPage = () => {
         </div>
       )}
 
+      {/* Toast Message */}
       {showToast && message && (
         <div
-          className=" align-items-center text-bg-success rounded-5 translate-middle-x m-3 show-mobile"
+          className="d-flex align-items-center text-bg-success rounded-5 translate-middle-x m-3 show-mobile"
           role="alert"
           aria-live="assertive"
           aria-atomic="true"
         >
-          <div className="d-flex gap-2">
-            <div className="toast-body">{message}</div>
-            <button
-              type="button"
-              className="btn-close btn-close-white me-2 m-auto"
-              style={{ fontSize: "14px" }}
-              aria-label="Close"
-              onClick={() => setShowToast(false)} // Allow manual close
-            ></button>
-          </div>
+          <div className="toast-body">{message}</div>
+          <button
+            type="button"
+            className="btn-close btn-close-white me-2 m-auto"
+            style={{ fontSize: "14px" }}
+            aria-label="Close"
+            onClick={() => setShowToast(false)}
+          ></button>
         </div>
       )}
     </div>

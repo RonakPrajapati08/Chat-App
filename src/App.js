@@ -1,11 +1,11 @@
 // App.js
-// import React from "react";
+import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import LoginPage from "./components/LoginPage";
 import SignUp from "./components/SignUp";
 import ChatPage from "./components/ChatPage";
-import React, { useEffect } from "react";
-import { messaging, getToken, onMessage } from "./firebaseConfig";
+// import React, { useEffect } from "react";
+// import { messaging, getToken, onMessage } from "./firebaseConfig";
 
 function App() {
   // useEffect(() => {
@@ -44,7 +44,7 @@ function App() {
   // }, []);
 
   return (
-    <Router basename="/Chat-App">
+    <Router>
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/SignUp" element={<SignUp />} />
