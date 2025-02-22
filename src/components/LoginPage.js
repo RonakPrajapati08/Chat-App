@@ -516,6 +516,7 @@ const LoginPage = () => {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         if (userData.name && userData.email === email) {
+          localStorage.setItem("currentUser", JSON.stringify(user));
           // Store success message in sessionStorage and redirect to /chat
           sessionStorage.setItem("successMessage", "Successfully logged in!");
           navigate(`/chat/${user.uid}`);
@@ -529,6 +530,8 @@ const LoginPage = () => {
           email: email,
           isOnline: true,
         });
+
+        localStorage.setItem("currentUser", JSON.stringify(user));
         // Store success message in sessionStorage and redirect to /chat
         sessionStorage.setItem("successMessage", "Successfully logged in!");
         navigate(`/chat/${user.uid}`);
@@ -603,8 +606,12 @@ const LoginPage = () => {
               />
             </div>
 
-            <button type="submit" disabled={loading} className="btn btn-primary w-100">
-              {loading ? 'Login in...' : 'Login'}
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary w-100"
+            >
+              {loading ? "Login in..." : "Login"}
             </button>
           </form>
           <p className="text-center mt-3">
@@ -617,7 +624,6 @@ const LoginPage = () => {
 };
 
 export default LoginPage;
-
 
 // LoginPage.js
 // import React, { useState, useEffect } from "react";
