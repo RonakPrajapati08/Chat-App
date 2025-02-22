@@ -45,7 +45,7 @@ function App() {
 
   return (
     <Router>
-      <Routes>
+      <Routes basename="/Chat-App">
         <Route path="/" element={<LoginPage />} />
         <Route path="/SignUp" element={<SignUp />} />
         <Route path="/chat/:userId" element={<ChatPage />} />
