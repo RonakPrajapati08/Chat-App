@@ -650,7 +650,251 @@
 
 // export default ChatPage;
 
-//Notifation Add
+//Notifation Add Responsive UI and Typing effect created 22/02/2025
+
+// import React, { useState, useEffect } from "react";
+// import { auth, db } from "../firebaseConfig";
+// import {
+//   getDoc,
+//   doc,
+//   onSnapshot,
+//   updateDoc,
+//   arrayRemove,
+// } from "firebase/firestore";
+// import { onAuthStateChanged } from "firebase/auth";
+// import ChatList from "./UserList";
+// import MessageArea from "./MessageArea";
+// import { useNavigate, useParams } from "react-router-dom";
+// import "bootstrap/dist/css/bootstrap.min.css";
+// import Spinner from "react-bootstrap/Spinner";
+// import { useLocation } from "react-router-dom";
+
+// const ChatPage = () => {
+//   const { userId } = useParams(); // Use URL parameter for userId
+//   const [selectedUser, setSelectedUser] = useState(
+//     JSON.parse(localStorage.getItem("selectedUser")) || null
+//   );
+//   const [currentUser, setCurrentUser] = useState(
+//     JSON.parse(localStorage.getItem("currentUser")) || null
+//   );
+//   const navigate = useNavigate();
+
+//   const location = useLocation();
+//   const successMessage = location.state?.successMessage || null; // Retrieve success message from state
+//   const [showToast, setShowToast] = useState(false);
+//   const [message, setMessage] = useState("");
+
+//   useEffect(() => {
+//     const checkUserProfile = async (user) => {
+//       const userDocRef = doc(db, "users", user.uid);
+//       const docSnap = await getDoc(userDocRef);
+
+//       if (docSnap.exists()) {
+//         const userData = docSnap.data();
+//         if (!userData.name || !userData.email) {
+//           navigate("/profile-completion");
+//         }
+//       } else {
+//         navigate("/profile-completion");
+//       }
+//     };
+
+//     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
+//       if (user) {
+//         setCurrentUser(user);
+//         localStorage.setItem("currentUser", JSON.stringify(user));
+//         checkUserProfile(user);
+//         if (!userId || userId !== user.uid) {
+//           navigate(`/chat/${user.uid}`);
+//         }
+//       } else {
+//         setCurrentUser(null);
+//         localStorage.removeItem("currentUser");
+//         navigate("/login");
+//       }
+//     });
+
+//     return () => unsubscribeAuth();
+//   }, [navigate, userId]);
+
+//   useEffect(() => {
+//     if (successMessage) {
+//       setShowToast(true);
+//       const timer = setTimeout(() => {
+//         setShowToast(false);
+//       }, 3000); // Close toast after 3 seconds
+
+//       return () => clearTimeout(timer); // Cleanup timeout on component unmount
+//     }
+//   }, [successMessage]);
+
+//   useEffect(() => {
+//     if (currentUser) {
+//       const notificationRef = doc(db, "notifications", currentUser.uid);
+
+//       const unsubscribe = onSnapshot(notificationRef, (docSnap) => {
+//         if (docSnap.exists()) {
+//           const notifications = docSnap.data().messages || [];
+
+//           if (notifications.length > 0) {
+//             const latestNotification = notifications[notifications.length - 1];
+//             alert(
+//               `New message from ${latestNotification.senderName}: ${latestNotification.text}`
+//             );
+
+//             // Remove the displayed notification
+//             updateDoc(notificationRef, {
+//               messages: arrayRemove(latestNotification),
+//             });
+//           }
+//         }
+//       });
+
+//       return () => unsubscribe();
+//     }
+//   }, [currentUser]);
+
+//   useEffect(() => {
+//     // Get the success message from sessionStorage
+//     const successMessage = sessionStorage.getItem("successMessage");
+
+//     if (successMessage) {
+//       setMessage(successMessage);
+//       setShowToast(true);
+//       sessionStorage.removeItem("successMessage"); // Remove message after it's shown
+
+//       // Hide the toast after 3 seconds
+//       setTimeout(() => {
+//         console.log("Hiding toast after 3 seconds");
+//         setShowToast(false);
+//       }, 3000);
+//     }
+//   }, []);
+
+//   // ✅ Fix: Persist selected user after page refresh
+//   useEffect(() => {
+//     if (selectedUser) {
+//       localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
+//     }
+//   }, [selectedUser]);
+
+//   useEffect(() => {
+//     const storedUser = localStorage.getItem("selectedUser");
+//     if (storedUser) {
+//       setSelectedUser(JSON.parse(storedUser));
+//     }
+//   }, []);
+
+//   const isMobile = window.innerWidth <= 600;
+
+//   // Generate user's profile image with initials
+//   const getUserProfileImage = (email) => {
+//     const firstLetter = email.charAt(0).toUpperCase();
+//     return (
+//       <div
+//         style={{
+//           display: "flex",
+//           justifyContent: "center",
+//           alignItems: "center",
+//           width: "40px",
+//           height: "40px",
+//           borderRadius: "50%",
+//           backgroundColor: "rgb(224, 231, 255, 1)",
+//           color: "#4f46e5",
+//           fontWeight: "bold",
+//         }}
+//       >
+//         {firstLetter}
+//       </div>
+//     );
+//   };
+
+//   return (
+//     <div className="chat-page bg-dark px-0 container-fluid">
+//       {currentUser ? (
+//         <div className="d-flex flex-wrap">
+//           {/* Chat List */}
+//           <div
+//             className="col-12 col-md-4"
+//             // style={{ maxWidth: "25%", minWidth: "280px" }}
+//             style={{
+//               display: isMobile && selectedUser ? "none" : "block",
+//               // width: "100%",
+//             }}
+//           >
+//             <ChatList
+//               setSelectedUser={setSelectedUser}
+//               getUserProfileImage={getUserProfileImage}
+//             />
+//           </div>
+
+//           {/* Message Area */}
+//           <div
+//             className="col-12 col-md-8 message-area-container"
+//             // style={{ flexGrow: 1 }}
+//             style={{
+//               flexGrow: 1,
+//               display: isMobile && !selectedUser ? "none" : "block",
+//               // width: "100%",
+//             }}
+//           >
+//             {selectedUser ? (
+//               <MessageArea
+//                 selectedUser={selectedUser}
+//                 setSelectedUser={setSelectedUser}
+//                 getUserProfileImage={getUserProfileImage}
+//               />
+//             ) : (
+//               <div
+//                 className="d-flex flex-column align-items-center justify-content-center text-center"
+//                 style={{ height: "100%", color: "#aaa" }}
+//               >
+//                 <i
+//                   className="fa-brands fa-whatsapp"
+//                   style={{ fontSize: "60px", marginBottom: "10px" }}
+//                 ></i>
+//                 <h4>Start a Chat</h4>
+//                 <p>
+//                   Send and receive messages without keeping your phone online.
+//                 </p>
+//                 <p>Use this chat on multiple devices at the same time.</p>
+//               </div>
+//             )}
+//           </div>
+//         </div>
+//       ) : (
+//         <div className="loading-spinner text-center">
+//           <Spinner animation="border" role="status">
+//             <span className="visually-hidden">Loading...</span>
+//           </Spinner>
+//         </div>
+//       )}
+
+//       {/* Toast Message */}
+//       {showToast && message && (
+//         <div
+//           className="d-flex align-items-center text-bg-success rounded-5 translate-middle-x m-3 show-mobile"
+//           role="alert"
+//           aria-live="assertive"
+//           aria-atomic="true"
+//         >
+//           <div className="toast-body">{message}</div>
+//           <button
+//             type="button"
+//             className="btn-close btn-close-white me-2 m-auto"
+//             style={{ fontSize: "14px" }}
+//             aria-label="Close"
+//             onClick={() => setShowToast(false)}
+//           ></button>
+//         </div>
+//       )}
+//     </div>
+//   );
+// };
+
+// export default ChatPage;
+
+//23/02/2025
 
 import React, { useState, useEffect } from "react";
 import { auth, db } from "../firebaseConfig";
@@ -670,7 +914,7 @@ import Spinner from "react-bootstrap/Spinner";
 import { useLocation } from "react-router-dom";
 
 const ChatPage = () => {
-  const { userId } = useParams(); // Use URL parameter for userId
+  const { userId } = useParams();
   const [selectedUser, setSelectedUser] = useState(
     JSON.parse(localStorage.getItem("selectedUser")) || null
   );
@@ -678,9 +922,8 @@ const ChatPage = () => {
     JSON.parse(localStorage.getItem("currentUser")) || null
   );
   const navigate = useNavigate();
-
   const location = useLocation();
-  const successMessage = location.state?.successMessage || null; // Retrieve success message from state
+  const successMessage = location.state?.successMessage || null;
   const [showToast, setShowToast] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -698,6 +941,13 @@ const ChatPage = () => {
         navigate("/profile-completion");
       }
     };
+
+    // ✅ Fetch user from localStorage before calling Firebase auth
+    const storedUser = localStorage.getItem("currentUser");
+
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
+    }
 
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       if (user) {
@@ -722,9 +972,9 @@ const ChatPage = () => {
       setShowToast(true);
       const timer = setTimeout(() => {
         setShowToast(false);
-      }, 3000); // Close toast after 3 seconds
+      }, 3000);
 
-      return () => clearTimeout(timer); // Cleanup timeout on component unmount
+      return () => clearTimeout(timer);
     }
   }, [successMessage]);
 
@@ -742,7 +992,6 @@ const ChatPage = () => {
               `New message from ${latestNotification.senderName}: ${latestNotification.text}`
             );
 
-            // Remove the displayed notification
             updateDoc(notificationRef, {
               messages: arrayRemove(latestNotification),
             });
@@ -755,15 +1004,13 @@ const ChatPage = () => {
   }, [currentUser]);
 
   useEffect(() => {
-    // Get the success message from sessionStorage
     const successMessage = sessionStorage.getItem("successMessage");
 
     if (successMessage) {
       setMessage(successMessage);
       setShowToast(true);
-      sessionStorage.removeItem("successMessage"); // Remove message after it's shown
+      sessionStorage.removeItem("successMessage");
 
-      // Hide the toast after 3 seconds
       setTimeout(() => {
         console.log("Hiding toast after 3 seconds");
         setShowToast(false);
@@ -771,7 +1018,7 @@ const ChatPage = () => {
     }
   }, []);
 
-  // ✅ Fix: Persist selected user after page refresh
+  // ✅ Persist selected user after page refresh
   useEffect(() => {
     if (selectedUser) {
       localStorage.setItem("selectedUser", JSON.stringify(selectedUser));
@@ -787,7 +1034,6 @@ const ChatPage = () => {
 
   const isMobile = window.innerWidth <= 600;
 
-  // Generate user's profile image with initials
   const getUserProfileImage = (email) => {
     const firstLetter = email.charAt(0).toUpperCase();
     return (
@@ -813,13 +1059,10 @@ const ChatPage = () => {
     <div className="chat-page bg-dark px-0 container-fluid">
       {currentUser ? (
         <div className="d-flex flex-wrap">
-          {/* Chat List */}
           <div
             className="col-12 col-md-4"
-            // style={{ maxWidth: "25%", minWidth: "280px" }}
             style={{
               display: isMobile && selectedUser ? "none" : "block",
-              // width: "100%",
             }}
           >
             <ChatList
@@ -828,14 +1071,11 @@ const ChatPage = () => {
             />
           </div>
 
-          {/* Message Area */}
           <div
             className="col-12 col-md-8 message-area-container"
-            // style={{ flexGrow: 1 }}
             style={{
               flexGrow: 1,
               display: isMobile && !selectedUser ? "none" : "block",
-              // width: "100%",
             }}
           >
             {selectedUser ? (
@@ -870,7 +1110,6 @@ const ChatPage = () => {
         </div>
       )}
 
-      {/* Toast Message */}
       {showToast && message && (
         <div
           className="d-flex align-items-center text-bg-success rounded-5 translate-middle-x m-3 show-mobile"
