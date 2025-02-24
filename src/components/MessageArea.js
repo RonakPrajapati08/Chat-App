@@ -1220,23 +1220,22 @@ const MessageArea = ({
           </div>
         ))}
         <div ref={messagesEndRef} />
+        {otherUserTyping && (
+          // <div className="typing-indicator">
+          //   <span> The other user is typing...</span>
+          //   <div className="typing-dots">
+          //     <span></span>
+          //     <span></span>
+          //     <span></span>
+          //   </div>
+          // </div>
+          <div className="typing-bubble mb-2">
+            <span className="dot"></span>
+            <span className="dot"></span>
+            <span className="dot"></span>
+          </div>
+        )}
       </div>
-
-      {otherUserTyping && (
-        // <div className="typing-indicator">
-        //   <span> The other user is typing...</span>
-        //   <div className="typing-dots">
-        //     <span></span>
-        //     <span></span>
-        //     <span></span>
-        //   </div>
-        // </div>
-        <div className="typing-bubble mb-2" style={{ marginLeft: "9px" }}>
-          <span className="dot"></span>
-          <span className="dot"></span>
-          <span className="dot"></span>
-        </div>
-      )}
 
       {/* Input Area */}
       <div className="input-area">

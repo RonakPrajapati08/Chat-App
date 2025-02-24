@@ -67,6 +67,7 @@ import { auth } from "./firebaseConfig";
 import LoginPage from "./components/LoginPage";
 import SignUp from "./components/SignUp";
 import ChatPage from "./components/ChatPage";
+import "bootstrap/dist/css/bootstrap.min.css"; // Import Bootstrap
 
 function App() {
   const [user, setUser] = useState(null);
@@ -82,11 +83,22 @@ function App() {
       setLoading(false);
     });
 
-    return () => unsubscribe(); // Cleanup listener on unmount
+    return () => unsubscribe();
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // Show loading screen while checking auth state
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div class="typing-indicator">
+          <div class="typing-circle"></div>
+          <div class="typing-circle"></div>
+          <div class="typing-circle"></div>
+          <div class="typing-shadow"></div>
+          <div class="typing-shadow"></div>
+          <div class="typing-shadow"></div>
+        </div>
+      </div>
+    );
   }
 
   return (

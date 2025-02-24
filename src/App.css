@@ -74,6 +74,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  position: relative;
   gap: 10px;
 }
 
@@ -140,6 +141,96 @@
 /* .input-area button:hover {
   background-color: #21C063;
 } */
+
+/* From Uiverse.io by aaronross1 */ 
+.typing-indicator {
+  width: 60px;
+  height: 30px;
+  position: relative;
+  z-index: 4;
+}
+
+.typing-circle {
+  width: 8px;
+  height: 8px;
+  position: absolute;
+  border-radius: 50%;
+  background-color: #000;
+  left: 15%;
+  transform-origin: 50%;
+  animation: typing-circle7124 0.5s alternate infinite ease;
+}
+
+@keyframes typing-circle7124 {
+  0% {
+    top: 20px;
+    height: 5px;
+    border-radius: 50px 50px 25px 25px;
+    transform: scaleX(1.7);
+  }
+
+  40% {
+    height: 8px;
+    border-radius: 50%;
+    transform: scaleX(1);
+  }
+
+  100% {
+    top: 0%;
+  }
+}
+
+.typing-circle:nth-child(2) {
+  left: 45%;
+  animation-delay: 0.2s;
+}
+
+.typing-circle:nth-child(3) {
+  left: auto;
+  right: 15%;
+  animation-delay: 0.3s;
+}
+
+.typing-shadow {
+  width: 5px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 30px;
+  transform-origin: 50%;
+  z-index: 3;
+  left: 15%;
+  filter: blur(1px);
+  animation: typing-shadow046 0.5s alternate infinite ease;
+}
+
+@keyframes typing-shadow046 {
+  0% {
+    transform: scaleX(1.5);
+  }
+
+  40% {
+    transform: scaleX(1);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scaleX(0.2);
+    opacity: 0.4;
+  }
+}
+
+.typing-shadow:nth-child(4) {
+  left: 45%;
+  animation-delay: 0.2s;
+}
+
+.typing-shadow:nth-child(5) {
+  left: auto;
+  right: 15%;
+  animation-delay: 0.3s;
+}
 
 @media (max-width: 600px) {
   .message {
@@ -282,8 +373,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #121212b9; /* Dark bubble color */
-  width: 40px;
+  background-color: #121212b9;
+  width: 36px;
   height: 26px;
   border-radius: 0 10px 10px 10px;
   position: relative;
@@ -298,15 +389,15 @@
   height: 0;
   border-radius: 4px 0 0 0 ;
   border-right: 10px solid #121212b9;
-  border-top: 2px solid transparent;
-  border-bottom: 7px solid transparent;
+  border-top: 0px solid transparent;
+  border-bottom: 11px solid transparent;
 }
 
 .dot {
   width: 4px;
   height: 4px;
   margin: 0 2px;
-  background-color: #979595; /* Dot color */
+  background-color: #979595;
   border-radius: 50%;
   animation: typing 1.5s infinite ease-in-out;
 }
@@ -360,6 +451,19 @@
     padding: 3px 9px;
     font-size: 13px;
     font-weight: 900;
+  }
+  .typing-bubble {
+    background-color: #e2dcdce1; 
+    border-radius: 0 7px 7px 7px;
+    width: 32px;
+    height: 24px;
+  }
+  .typing-bubble::before {
+    border-right: 10px solid #e2dcdce1;
+    border-bottom: 9px solid transparent;
+  }
+  .dot {
+    background-color: #424141c2;
   }
 }
 
