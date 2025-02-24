@@ -280,7 +280,13 @@
 
 //Without error SDK Firebase notification not support in browser
 import { initializeApp } from "firebase/app";
-import { getAuth, onAuthStateChanged, GoogleAuthProvider } from "firebase/auth";
+import {
+  getAuth,
+  setPersistence,
+  browserLocalPersistence,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+} from "firebase/auth";
 import {
   getFirestore,
   doc,
@@ -321,6 +327,15 @@ const storage = getStorage(app);
 //     "Service Workers are not  supported in this browser. Push notifications won't work."
 //   );
 // }
+
+// 🔥 Set authentication persistence (Keeps user logged in even after refresh)
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Auth persistence enabled");
+  })
+  .catch((error) => {
+    console.error("Auth persistence error:", error);
+  });
 
 const updateChatsWithParticipants = async () => {
   const chatsCollection = collection(db, "chats");

@@ -465,7 +465,7 @@
 
 import React, { useState, useEffect } from "react";
 import { auth, db } from "../firebaseConfig";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -483,18 +483,23 @@ const LoginPage = () => {
   const handleImageUpload = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => {
-      setProfileImage(e.target.result); // Save Base64 string
-      localStorage.setItem("profileImage", e.target.result); // Save image in local storage
+      setProfileImage(e.target.result);
+      localStorage.setItem("profileImage", e.target.result);
     };
     reader.readAsDataURL(file);
   };
 
+  // 🔥 Fix: Ensure authentication state is correctly set
   useEffect(() => {
-    if (auth.currentUser) {
-      navigate(`/chat/${auth.currentUser.uid}`, {
-        state: { successMessage: "Successfully logged in!" }, // Pass message on login
-      });
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigate(`/chat/${user.uid}`, {
+          state: { successMessage: "Successfully logged in!" },
+        });
+      }
+    });
+
+    return () => unsubscribe(); // Cleanup on unmount
   }, [navigate]);
 
   const handleLogin = async (e) => {
@@ -517,7 +522,6 @@ const LoginPage = () => {
         const userData = userDoc.data();
         if (userData.name && userData.email === email) {
           localStorage.setItem("currentUser", JSON.stringify(user));
-          // Store success message in sessionStorage and redirect to /chat
           sessionStorage.setItem("successMessage", "Successfully logged in!");
           navigate(`/chat/${user.uid}`);
         } else {
@@ -525,14 +529,13 @@ const LoginPage = () => {
           setError("Your profile information is incomplete or incorrect.");
         }
       } else {
-        await setDoc(doc(db, "users", user.uid), {
+        await setDoc(userDocRef, {
           name: name,
           email: email,
           isOnline: true,
         });
 
         localStorage.setItem("currentUser", JSON.stringify(user));
-        // Store success message in sessionStorage and redirect to /chat
         sessionStorage.setItem("successMessage", "Successfully logged in!");
         navigate(`/chat/${user.uid}`);
       }
@@ -611,7 +614,7 @@ const LoginPage = () => {
               disabled={loading}
               className="btn btn-primary w-100"
             >
-              {loading ? "Login in..." : "Login"}
+              {loading ? "Logging in..." : "Login"}
             </button>
           </form>
           <p className="text-center mt-3">
