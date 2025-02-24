@@ -1060,9 +1060,10 @@ const ChatPage = () => {
       {currentUser ? (
         <div className="d-flex flex-wrap">
           <div
-            className="col-12 col-md-4"
+            className="col-12 col-md-4 col-xl-3"
             style={{
               display: isMobile && selectedUser ? "none" : "block",
+              paddingRight: "1px",
             }}
           >
             <ChatList
@@ -1072,7 +1073,7 @@ const ChatPage = () => {
           </div>
 
           <div
-            className="col-12 col-md-8 message-area-container"
+            className="col-12 col-md-8 col-xl-9 message-area-container"
             style={{
               flexGrow: 1,
               display: isMobile && !selectedUser ? "none" : "block",
